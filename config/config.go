@@ -9,6 +9,7 @@ type ReplsetTags map[string]string
 type WriteConcern struct {
 	WriteConcern string `bson:"w"`
 	WriteTimeout int    `bson:"wtimeout"`
+	Journal      bool   `bson:"j,omitempty"`
 }
 
 type Settings struct {
