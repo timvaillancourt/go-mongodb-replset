@@ -32,7 +32,10 @@ func (c *Config) getMemberMaxId() int {
 }
 
 func (c *Config) AddMember(member *Member) {
-	member.Id = c.getMemberMaxId()
+	memberMaxId := c.getMemberMaxId()
+	if member.Id <= memberMaxId {
+		member.Id = memberMaxId + 1
+	}
 	c.Members = append(c.Members, member)
 }
 
