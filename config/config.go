@@ -1,6 +1,7 @@
 package config
 
 import (
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -58,4 +59,16 @@ func New(session *mgo.Session) (*Config, error) {
 		return resp.Config, nil
 	}
 	return nil, nil
+}
+
+func (c *Config) AddMember(member *Member) {
+	c.Members = append(c.Members, member)
+}
+
+func (c *Config) RemoveMember(removeMember *Member) {
+	for i, member := range c.Members {
+		if member.Host == removeMember.Host {
+			c.Members = append(c.Members[:i], c.Members[i+1])
+		}
+	}
 }
