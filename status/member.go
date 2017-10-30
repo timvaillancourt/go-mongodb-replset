@@ -46,6 +46,24 @@ type Member struct {
 	SyncingTo         string              `bson:"syncingTo,omitempty"`
 }
 
+func (s *Status) GetMember(name string) *Member {
+	for _, member := range s.Members {
+		if member.Name == name {
+			return member
+		}
+	}
+	return nil
+}
+
+func (s *Status) GetMemberById(id int) *Member {
+	for _, member := range s.Members {
+		if member.Id == id {
+			return member
+		}
+	}
+	return nil
+}
+
 func (s *Status) GetMembersByState(state MemberState, limit int) []*Member {
 	members := make([]*Member, 0)
 	for _, member := range s.Members {
