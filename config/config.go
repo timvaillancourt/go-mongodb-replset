@@ -15,7 +15,7 @@ type WriteConcern struct {
 type Settings struct {
 	ChainingAllowed         bool                    `bson:"chainingAllowed,omitempty"`
 	HeartbeatIntervalMillis int64                   `bson:"heartbeatIntervalMillis,omitempty"`
-	HeartbeatTimeoutSecs    int64                   `bson:"heartbeatTimeoutSecs,omitempty"`
+	HeartbeatTimeoutSecs    int                     `bson:"heartbeatTimeoutSecs,omitempty"`
 	ElectionTimeoutMillis   int64                   `bson:"electionTimeoutMillis,omitempty"`
 	CatchUpTimeoutMillis    int64                   `bson:"catchUpTimeoutMillis,omitempty"`
 	GetLastErrorModes       map[string]*ReplsetTags `bson:"getLastErrorModes,omitempty"`
