@@ -55,7 +55,7 @@ func (s *Status) GetMember(name string) *Member {
 	return nil
 }
 
-func (s *Status) GetMemberById(id int) *Member {
+func (s *Status) GetMemberId(id int) *Member {
 	for _, member := range s.Members {
 		if member.Id == id {
 			return member
