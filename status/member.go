@@ -56,7 +56,7 @@ func (s *Status) GetMember(name string) *Member {
 }
 
 func (s *Status) HasMember(name string) bool {
-	return !s.GetMember(name) == nil
+	return s.GetMember(name) != nil
 }
 
 func (s *Status) GetMemberId(id int) *Member {

@@ -50,7 +50,7 @@ func (c *Config) RemoveMember(removeMember *Member) {
 
 func (c *Config) GetMember(name string) *Member {
 	for _, member := range c.Members {
-		if member.Name == name {
+		if member.Host == name {
 			return member
 		}
 	}
@@ -58,7 +58,7 @@ func (c *Config) GetMember(name string) *Member {
 }
 
 func (c *Config) HasMember(name string) bool {
-	return !c.GetMember(name) == nil
+	return c.GetMember(name) != nil
 }
 
 func (c *Config) GetMemberId(id int) *Member {
