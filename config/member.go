@@ -47,3 +47,25 @@ func (c *Config) RemoveMember(removeMember *Member) {
 		}
 	}
 }
+
+func (c *Config) GetMember(name string) *Member {
+	for _, member := range c.Members {
+		if member.Name == name {
+			return member
+		}
+	}
+	return nil
+}
+
+func (c *Config) HasMember(name string) bool {
+	return !c.GetMember(name) == nil
+}
+
+func (c *Config) GetMemberId(id int) *Member {
+	for _, member := range c.Members {
+		if member.Id == id {
+			return member
+		}
+	}
+	return nil
+}
