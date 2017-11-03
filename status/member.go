@@ -9,7 +9,7 @@ import (
 type MemberHealth int
 type MemberState int
 
-var (
+const (
 	MemberHealthDown      MemberHealth = 0
 	MemberHealthUp        MemberHealth = 1
 	MemberStateStartup    MemberState  = 0
