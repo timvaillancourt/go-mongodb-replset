@@ -46,6 +46,15 @@ type Member struct {
 	SyncingTo         string              `bson:"syncingTo,omitempty"`
 }
 
+func (s *Status) GetSelf() *Member {
+	for _, member := range s.Members {
+		if member.Self == true {
+			return member
+		}
+	}
+	return nil
+}
+
 func (s *Status) GetMember(name string) *Member {
 	for _, member := range s.Members {
 		if member.Name == name {
