@@ -7,7 +7,7 @@ type Member struct {
 	BuildIndexes bool         `bson:"buildIndexes"`
 	Hidden       bool         `bson:"hidden"`
 	Priority     int          `bson:"priority"`
-	Tags         *ReplsetTags `bson:"tags"`
+	Tags         *ReplsetTags `bson:"tags,omitempty"`
 	SlaveDelay   int64        `bson:"slaveDelay"`
 	Votes        int          `bson:"votes"`
 }
