@@ -1,6 +1,7 @@
 package status
 
 import (
+	"errors"
 	"time"
 
 	"gopkg.in/mgo.v2"
@@ -26,6 +27,7 @@ type Status struct {
 	Term                    int64          `bson:"term,omitempty"`
 	HeartbeatIntervalMillis int64          `bson:"heartbeatIntervalMillis,omitempty"`
 	Optimes                 *StatusOptimes `bson:"optimes,omitempty"`
+	Errmsg                  string         `bson:"errmsg,omitempty"`
 	Ok                      int            `bson:"ok"`
 }
 
@@ -35,8 +37,8 @@ func New(session *mgo.Session) (*Status, error) {
 	if err != nil {
 		return nil, err
 	}
-	if status.Ok == 1 {
-		return status, nil
+	if status.Ok == 0 {
+		return nil, errors.New(status.Errmsg)
 	}
-	return nil, nil
+	return status, nil
 }

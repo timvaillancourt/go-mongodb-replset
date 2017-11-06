@@ -2,7 +2,6 @@ package config
 
 import (
 	"errors"
-	//"fmt"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -48,17 +47,18 @@ type Config struct {
 
 type ReplSetGetConfig struct {
 	Config *Config `bson:"config"`
+	Errmsg string  `bson:"errmsg,omitempty"`
 	Ok     int     `bson:"ok"`
 }
 
-type ConfigHandler struct {
+type ConfigManager struct {
 	session   *mgo.Session
 	config    *Config
 	initiated bool
 }
 
-func New(session *mgo.Session) *ConfigHandler {
-	return &ConfigHandler{
+func New(session *mgo.Session) *ConfigManager {
+	return &ConfigManager{
 		session:   session,
 		initiated: false,
 	}
@@ -68,31 +68,34 @@ func NewConfig(rsName string) *Config {
 	return &Config{
 		Name:    rsName,
 		Members: make([]*Member, 0),
+		Version: 1,
 	}
 }
 
-func (c *ConfigHandler) Get() *Config {
+func (c *ConfigManager) Get() *Config {
 	return c.config
 }
 
-func (c *ConfigHandler) Set(config *Config) {
+func (c *ConfigManager) Set(config *Config) {
 	c.config = config
 }
 
-func (c *ConfigHandler) Load() error {
+func (c *ConfigManager) Load() error {
 	resp := &ReplSetGetConfig{}
 	err := c.session.Run(bson.D{{"replSetGetConfig", 1}}, resp)
 	if err != nil {
 		return err
 	}
-	if resp.Config != nil {
+	if resp.Ok == 1 && resp.Config != nil {
 		c.config = resp.Config
 		c.initiated = true
+	} else {
+		return errors.New(resp.Errmsg)
 	}
 	return nil
 }
 
-func (c *ConfigHandler) IsInitiated() bool {
+func (c *ConfigManager) IsInitiated() bool {
 	if c.initiated {
 		return true
 	}
@@ -103,13 +106,17 @@ func (c *ConfigHandler) IsInitiated() bool {
 	return true
 }
 
-func (c *ConfigHandler) Initiate() error {
+func (c *ConfigManager) Initiate() error {
 	if c.initiated {
 		return nil
 	}
 	resp := &OkResponse{}
 	err := c.session.Run(bson.D{{"replSetInitiate", c.config}}, resp)
 	if err != nil {
+		if err.Error() == "already initialized" {
+			c.initiated = true
+			return nil
+		}
 		return err
 	}
 	if resp.Ok == 1 {
@@ -118,7 +125,7 @@ func (c *ConfigHandler) Initiate() error {
 	return nil
 }
 
-func (c *ConfigHandler) Validate() error {
+func (c *ConfigManager) Validate() error {
 	if c.config.Name == "" {
 		return ErrNoReplsetId
 	}
@@ -128,7 +135,7 @@ func (c *ConfigHandler) Validate() error {
 	return nil
 }
 
-func (c *ConfigHandler) Save() error {
+func (c *ConfigManager) Save() error {
 	err := c.Validate()
 	if err != nil {
 		return err
