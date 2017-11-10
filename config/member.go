@@ -36,7 +36,7 @@ func (c *Config) AddMember(member *Member) {
 	c.Lock()
 	defer c.Unlock()
 
-	if c.HasMember(member) {
+	if c.HasMember(member.Name()) {
 		return
 	}
 	memberMaxId := c.getMemberMaxId()
