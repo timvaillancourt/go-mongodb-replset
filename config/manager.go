@@ -90,7 +90,7 @@ func (c *ConfigManager) Save() error {
 	}
 	if c.IsInitiated() {
 		resp := &OkResponse{}
-		err = c.session.Run(bson.D{{"replSetReconfig", c}}, resp)
+		err = c.session.Run(bson.D{{"replSetReconfig", c.config}}, resp)
 	} else {
 		err = c.Initiate()
 	}
