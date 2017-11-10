@@ -33,19 +33,26 @@ func (c *Config) getMemberMaxId() int {
 }
 
 func (c *Config) AddMember(member *Member) {
+	c.Lock()
+	defer c.Unlock()
+
+	if c.HasMember(member) {
+		return
+	}
 	memberMaxId := c.getMemberMaxId()
 	if member.Id <= memberMaxId {
 		member.Id = memberMaxId + 1
 	}
 	c.Members = append(c.Members, member)
-	c.IncrVersion()
 }
 
 func (c *Config) RemoveMember(removeMember *Member) {
+	c.Lock()
+	defer c.Unlock()
+
 	for i, member := range c.Members {
 		if member.Host == removeMember.Host {
 			c.Members = append(c.Members[:i], c.Members[i+1])
-			c.IncrVersion()
 			return
 		}
 	}

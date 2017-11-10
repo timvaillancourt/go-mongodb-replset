@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"errors"
+	"sync"
 
 	"gopkg.in/mgo.v2/bson"
 )
@@ -36,6 +37,7 @@ type Settings struct {
 }
 
 type Config struct {
+	sync.Mutex
 	Name                               string    `bson:"_id" json:"_id"`
 	Version                            int       `bson:"version" json:"version"`
 	Members                            []*Member `bson:"members" json:"members"`
