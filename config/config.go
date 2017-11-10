@@ -65,10 +65,10 @@ func (c *Config) IncrVersion() {
 	c.Version = c.Version + 1
 }
 
-func (c *Config) ToString() (string, error) {
+func (c *Config) ToString() string {
 	raw, err := json.MarshalIndent(c, "", "\t")
 	if err != nil {
-		return "", err
+		return ""
 	}
-	return string(raw), err
+	return string(raw)
 }

@@ -44,10 +44,10 @@ func New(session *mgo.Session) (*Status, error) {
 	return status, nil
 }
 
-func (s *Status) ToString() (string, error) {
+func (s *Status) ToString() string {
 	raw, err := json.MarshalIndent(s, "", "\t")
 	if err != nil {
-		return "", err
+		return ""
 	}
-	return string(raw), err
+	return string(raw)
 }
