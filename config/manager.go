@@ -29,11 +29,19 @@ func (c *ConfigManager) Get() *Config {
 	return c.config
 }
 
-func (c *ConfigManager) Set(config *Config) {
+func (c *ConfigManager) Set(name string) {
 	c.Lock()
 	defer c.Unlock()
 
-	c.config = config
+	c.config.GetMember(name)
+}
+
+// Perform GetMember on a Config struct with locking
+func (c *ConfigManager) GetMember(name string) *Member {
+	c.Lock()
+	defer c.Unlock()
+
+	return c.config.GetMember(name)
 }
 
 // Perform AddMember on a Config struct with locking
@@ -50,6 +58,14 @@ func (c *ConfigManager) RemoveMember(member *Member) {
 	defer c.Unlock()
 
 	c.config.RemoveMember(member)
+}
+
+// Perform IncrVersion on a Config struct with locking
+func (c *ConfigManager) IncrVersion() {
+	c.Lock()
+	defer c.Unlock()
+
+	c.config.IncrVersion()
 }
 
 func (c *ConfigManager) Load() error {
