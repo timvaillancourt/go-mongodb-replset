@@ -1,15 +1,15 @@
 package config
 
 type Member struct {
-	Id           int          `bson:"_id"`
-	Host         string       `bson:"host"`
-	ArbiterOnly  bool         `bson:"arbiterOnly"`
-	BuildIndexes bool         `bson:"buildIndexes"`
-	Hidden       bool         `bson:"hidden"`
-	Priority     int          `bson:"priority"`
-	Tags         *ReplsetTags `bson:"tags,omitempty"`
-	SlaveDelay   int64        `bson:"slaveDelay"`
-	Votes        int          `bson:"votes"`
+	Id           int          `bson:"_id" json:"_id"`
+	Host         string       `bson:"host" json:"host"`
+	ArbiterOnly  bool         `bson:"arbiterOnly" json:"arbiterOnly"`
+	BuildIndexes bool         `bson:"buildIndexes" json:"buildIndexes"`
+	Hidden       bool         `bson:"hidden" json:"hidden"`
+	Priority     int          `bson:"priority" json:"priority"`
+	Tags         *ReplsetTags `bson:"tags,omitempty" json:"tags,omitempty"`
+	SlaveDelay   int64        `bson:"slaveDelay" json:"slaveDelay"`
+	Votes        int          `bson:"votes" json:"votes"`
 }
 
 func (c *Config) NewMember(host string) *Member {

@@ -1,9 +1,9 @@
 package config
 
 import (
+	"encoding/json"
 	"errors"
 
-	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -15,53 +15,40 @@ var (
 
 type ReplsetTags map[string]string
 type WriteConcern struct {
-	WriteConcern string `bson:"w"`
-	WriteTimeout int    `bson:"wtimeout"`
-	Journal      bool   `bson:"j,omitempty"`
+	WriteConcern interface{} `bson:"w" json:"w"`
+	WriteTimeout int         `bson:"wtimeout" json:"wtimeout"`
+	Journal      bool        `bson:"j,omitempty" json:"j,omitempty"`
 }
 
 type OkResponse struct {
-	Ok int `bson:"ok"`
+	Ok int `bson:"ok" json:"ok" json:"ok"`
 }
 
 type Settings struct {
-	ChainingAllowed         bool                    `bson:"chainingAllowed,omitempty"`
-	HeartbeatIntervalMillis int64                   `bson:"heartbeatIntervalMillis,omitempty"`
-	HeartbeatTimeoutSecs    int                     `bson:"heartbeatTimeoutSecs,omitempty"`
-	ElectionTimeoutMillis   int64                   `bson:"electionTimeoutMillis,omitempty"`
-	CatchUpTimeoutMillis    int64                   `bson:"catchUpTimeoutMillis,omitempty"`
-	GetLastErrorModes       map[string]*ReplsetTags `bson:"getLastErrorModes,omitempty"`
-	GetLastErrorDefaults    *WriteConcern           `bson:"getLastErrorDefaults,omitempty"`
-	ReplicaSetId            bson.ObjectId           `bson:"replicaSetId,omitempty"`
+	ChainingAllowed         bool                    `bson:"chainingAllowed,omitempty" json:"chainingAllowed,omitempty"`
+	HeartbeatIntervalMillis int64                   `bson:"heartbeatIntervalMillis,omitempty" json:"heartbeatIntervalMillis,omitempty"`
+	HeartbeatTimeoutSecs    int                     `bson:"heartbeatTimeoutSecs,omitempty" json:"heartbeatTimeoutSecs,omitempty"`
+	ElectionTimeoutMillis   int64                   `bson:"electionTimeoutMillis,omitempty" json:"electionTimeoutMillis,omitempty"`
+	CatchUpTimeoutMillis    int64                   `bson:"catchUpTimeoutMillis,omitempty" json:"catchUpTimeoutMillis,omitempty"`
+	GetLastErrorModes       map[string]*ReplsetTags `bson:"getLastErrorModes,omitempty" json:"getLastErrorModes,omitempty"`
+	GetLastErrorDefaults    *WriteConcern           `bson:"getLastErrorDefaults,omitempty" json:"getLastErrorDefaults,omitempty"`
+	ReplicaSetId            bson.ObjectId           `bson:"replicaSetId,omitempty" json:"replicaSetId,omitempty"`
 }
 
 type Config struct {
-	Name                               string    `bson:"_id"`
-	Version                            int       `bson:"version"`
-	Members                            []*Member `bson:"members"`
-	Configsvr                          bool      `bson:"configsvr,omitempty"`
-	ProtocolVersion                    int       `bson:"protocolVersion,omitempty"`
-	Settings                           *Settings `bson:"settings,omitempty"`
-	WriteConcernMajorityJournalDefault bool      `bson:"writeConcernMajorityJournalDefault,omitempty"`
+	Name                               string    `bson:"_id" json:"_id"`
+	Version                            int       `bson:"version" json:"version"`
+	Members                            []*Member `bson:"members" json:"members"`
+	Configsvr                          bool      `bson:"configsvr,omitempty" json:"configsvr,omitempty"`
+	ProtocolVersion                    int       `bson:"protocolVersion,omitempty" json:"protocolVersion,omitempty"`
+	Settings                           *Settings `bson:"settings,omitempty" json:"settings,omitempty"`
+	WriteConcernMajorityJournalDefault bool      `bson:"writeConcernMajorityJournalDefault,omitempty" json:"writeConcernMajorityJournalDefault,omitempty"`
 }
 
 type ReplSetGetConfig struct {
-	Config *Config `bson:"config"`
-	Errmsg string  `bson:"errmsg,omitempty"`
-	Ok     int     `bson:"ok"`
-}
-
-type ConfigManager struct {
-	session   *mgo.Session
-	config    *Config
-	initiated bool
-}
-
-func New(session *mgo.Session) *ConfigManager {
-	return &ConfigManager{
-		session:   session,
-		initiated: false,
-	}
+	Config *Config `bson:"config" json:"config"`
+	Errmsg string  `bson:"errmsg,omitempty" json:"errmsg,omitempty"`
+	Ok     int     `bson:"ok" json:"ok" json:"ok"`
 }
 
 func NewConfig(rsName string) *Config {
@@ -72,82 +59,10 @@ func NewConfig(rsName string) *Config {
 	}
 }
 
-func (c *ConfigManager) Get() *Config {
-	return c.config
-}
-
-func (c *ConfigManager) Set(config *Config) {
-	c.config = config
-}
-
-func (c *ConfigManager) Load() error {
-	resp := &ReplSetGetConfig{}
-	err := c.session.Run(bson.D{{"replSetGetConfig", 1}}, resp)
+func (c *Config) ToString() (string, error) {
+	raw, err := json.MarshalIndent(c, "", "\t")
 	if err != nil {
-		return err
+		return "", err
 	}
-	if resp.Ok == 1 && resp.Config != nil {
-		c.config = resp.Config
-		c.initiated = true
-	} else {
-		return errors.New(resp.Errmsg)
-	}
-	return nil
-}
-
-func (c *ConfigManager) IsInitiated() bool {
-	if c.initiated {
-		return true
-	}
-	err := c.Load()
-	if err != nil {
-		return false
-	}
-	return true
-}
-
-func (c *ConfigManager) Initiate() error {
-	if c.initiated {
-		return nil
-	}
-	resp := &OkResponse{}
-	err := c.session.Run(bson.D{{"replSetInitiate", c.config}}, resp)
-	if err != nil {
-		if err.Error() == "already initialized" {
-			c.initiated = true
-			return nil
-		}
-		return err
-	}
-	if resp.Ok == 1 {
-		c.initiated = true
-	}
-	return nil
-}
-
-func (c *ConfigManager) Validate() error {
-	if c.config.Name == "" {
-		return ErrNoReplsetId
-	}
-	if len(c.config.Members) == 0 {
-		return ErrNoReplsetMembers
-	}
-	return nil
-}
-
-func (c *ConfigManager) Save() error {
-	err := c.Validate()
-	if err != nil {
-		return err
-	}
-	if c.IsInitiated() {
-		resp := &OkResponse{}
-		err = c.session.Run(bson.D{{"replSetReconfig", c}}, resp)
-	} else {
-		err = c.Initiate()
-	}
-	if err != nil {
-		return err
-	}
-	return nil
+	return string(raw), err
 }
