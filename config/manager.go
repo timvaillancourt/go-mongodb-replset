@@ -45,7 +45,7 @@ func (c *ConfigManager) AddMember(member *Member) {
 }
 
 // Perform RemoveMember on a Config struct with locking
-func (c *ConfigManager) Set(member *Member) {
+func (c *ConfigManager) RemoveMember(member *Member) {
 	c.Lock()
 	defer c.Unlock()
 
