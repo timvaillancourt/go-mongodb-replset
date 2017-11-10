@@ -2,12 +2,14 @@ package config
 
 import (
 	"errors"
+	"sync"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
 type ConfigManager struct {
+	sync.Mutex
 	session   *mgo.Session
 	config    *Config
 	initiated bool
@@ -21,14 +23,39 @@ func New(session *mgo.Session) *ConfigManager {
 }
 
 func (c *ConfigManager) Get() *Config {
+	c.Lock()
+	defer c.Unlock()
+
 	return c.config
 }
 
 func (c *ConfigManager) Set(config *Config) {
+	c.Lock()
+	defer c.Unlock()
+
 	c.config = config
 }
 
+// Perform AddMember on a Config struct with locking
+func (c *ConfigManager) AddMember(member *Member) {
+	c.Lock()
+	defer c.Unlock()
+
+	c.config.AddMember(member)
+}
+
+// Perform RemoveMember on a Config struct with locking
+func (c *ConfigManager) Set(member *Member) {
+	c.Lock()
+	defer c.Unlock()
+
+	c.config.RemoveMember(member)
+}
+
 func (c *ConfigManager) Load() error {
+	c.Lock()
+	defer c.Unlock()
+
 	resp := &ReplSetGetConfig{}
 	err := c.session.Run(bson.D{{"replSetGetConfig", 1}}, resp)
 	if err != nil {
@@ -90,7 +117,7 @@ func (c *ConfigManager) Save() error {
 	}
 	if c.IsInitiated() {
 		resp := &OkResponse{}
-		err = c.session.Run(bson.D{{"replSetReconfig", c.config}}, resp)
+		err = c.session.Run(bson.D{{"replSetReconfig", c.Get()}}, resp)
 	} else {
 		err = c.Initiate()
 	}
