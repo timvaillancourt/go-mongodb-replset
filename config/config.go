@@ -59,6 +59,10 @@ func NewConfig(rsName string) *Config {
 	}
 }
 
+func (c *Config) IncrVersion() {
+	c.Version = c.Version + 1
+}
+
 func (c *Config) ToString() (string, error) {
 	raw, err := json.MarshalIndent(c, "", "\t")
 	if err != nil {
