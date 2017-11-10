@@ -12,8 +12,9 @@ type Member struct {
 	Votes        int          `bson:"votes"`
 }
 
-func NewMember(host string) *Member {
+func (c *Config) NewMember(host string) *Member {
 	return &Member{
+		Id:           c.getMemberMaxId() + 1,
 		Host:         host,
 		BuildIndexes: true,
 		Priority:     1,
