@@ -25,25 +25,25 @@ const (
 )
 
 type Member struct {
-	Id                int                 `bson:"_id"`
-	Name              string              `bson:"name"`
-	Health            MemberHealth        `bson:"health"`
-	State             MemberState         `bson:"state"`
-	StateStr          string              `bson:"stateStr"`
-	Uptime            int64               `bson:"uptime"`
-	Optime            *Optime             `bson:"optime"`
-	OptimeDate        time.Time           `bson:"optimeDate"`
-	ConfigVersion     int                 `bson:"configVersion"`
-	ElectionTime      bson.MongoTimestamp `bson:"electionTime,omitempty"`
-	ElectionDate      time.Time           `bson:"electionDate,omitempty"`
-	InfoMessage       string              `bson:"infoMessage,omitempty"`
-	OptimeDurable     *Optime             `bson:"optimeDurable,omitempty"`
-	OptimeDurableDate time.Time           `bson:"optimeDurableDate,omitempty"`
-	LastHeartbeat     time.Time           `bson:"lastHeartbeat,omitempty"`
-	LastHeartbeatRecv time.Time           `bson:"lastHeartbeatRecv,omitempty"`
-	PingMs            int64               `bson:"pingMs,omitempty"`
-	Self              bool                `bson:"self,omitempty"`
-	SyncingTo         string              `bson:"syncingTo,omitempty"`
+	Id                int                 `bson:"_id" json:"_id"`
+	Name              string              `bson:"name" json:"name"`
+	Health            MemberHealth        `bson:"health" json:"health"`
+	State             MemberState         `bson:"state" json:"state"`
+	StateStr          string              `bson:"stateStr" json:"stateStr"`
+	Uptime            int64               `bson:"uptime" json:"uptime"`
+	Optime            *Optime             `bson:"optime" json:"optime"`
+	OptimeDate        time.Time           `bson:"optimeDate" json:"optimeDate"`
+	ConfigVersion     int                 `bson:"configVersion" json:"configVersion"`
+	ElectionTime      bson.MongoTimestamp `bson:"electionTime,omitempty" json:"electionTime,omitempty"`
+	ElectionDate      time.Time           `bson:"electionDate,omitempty" json:"electionDate,omitempty"`
+	InfoMessage       string              `bson:"infoMessage,omitempty" json:"infoMessage,omitempty"`
+	OptimeDurable     *Optime             `bson:"optimeDurable,omitempty" json:"optimeDurable,omitempty"`
+	OptimeDurableDate time.Time           `bson:"optimeDurableDate,omitempty" json:"optimeDurableDate,omitempty"`
+	LastHeartbeat     time.Time           `bson:"lastHeartbeat,omitempty" json:"lastHeartbeat,omitempty"`
+	LastHeartbeatRecv time.Time           `bson:"lastHeartbeatRecv,omitempty" json:"lastHeartbeatRecv,omitempty"`
+	PingMs            int64               `bson:"pingMs,omitempty" json:"pingMs,omitempty"`
+	Self              bool                `bson:"self,omitempty" json:"self,omitempty"`
+	SyncingTo         string              `bson:"syncingTo,omitempty" json:"syncingTo,omitempty"`
 }
 
 func (s *Status) GetSelf() *Member {

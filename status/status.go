@@ -1,6 +1,7 @@
 package status
 
 import (
+	"encoding/json"
 	"errors"
 	"time"
 
@@ -9,26 +10,26 @@ import (
 )
 
 type Optime struct {
-	Timestamp bson.MongoTimestamp `bson:"ts"`
-	Term      int64               `bson:"t"`
+	Timestamp bson.MongoTimestamp `bson:"ts" json:"ts"`
+	Term      int64               `bson:"t" json:"t"`
 }
 
 type StatusOptimes struct {
-	LastCommittedOpTime *Optime `bson:"lastCommittedOpTime"`
-	AppliedOpTime       *Optime `bson:"appliedOpTime"`
-	DurableOptime       *Optime `bson:"durableOpTime"`
+	LastCommittedOpTime *Optime `bson:"lastCommittedOpTime" json:"lastCommittedOpTime"`
+	AppliedOpTime       *Optime `bson:"appliedOpTime" json:"appliedOpTime"`
+	DurableOptime       *Optime `bson:"durableOpTime" json:"durableOpTime"`
 }
 
 type Status struct {
-	Set                     string         `bson:"set"`
-	Date                    time.Time      `bson:"date"`
-	MyState                 MemberState    `bson:"myState"`
-	Members                 []*Member      `bson:"members"`
-	Term                    int64          `bson:"term,omitempty"`
-	HeartbeatIntervalMillis int64          `bson:"heartbeatIntervalMillis,omitempty"`
-	Optimes                 *StatusOptimes `bson:"optimes,omitempty"`
-	Errmsg                  string         `bson:"errmsg,omitempty"`
-	Ok                      int            `bson:"ok"`
+	Set                     string         `bson:"set" json:"set"`
+	Date                    time.Time      `bson:"date" json:"date"`
+	MyState                 MemberState    `bson:"myState" json:"myState"`
+	Members                 []*Member      `bson:"members" json:"members"`
+	Term                    int64          `bson:"term,omitempty" json:"term,omitempty"`
+	HeartbeatIntervalMillis int64          `bson:"heartbeatIntervalMillis,omitempty" json:"heartbeatIntervalMillis,omitempty"`
+	Optimes                 *StatusOptimes `bson:"optimes,omitempty" json:"optimes,omitempty"`
+	Errmsg                  string         `bson:"errmsg,omitempty" json:"errmsg,omitempty"`
+	Ok                      int            `bson:"ok" json:"ok"`
 }
 
 func New(session *mgo.Session) (*Status, error) {
@@ -41,4 +42,12 @@ func New(session *mgo.Session) (*Status, error) {
 		return nil, errors.New(status.Errmsg)
 	}
 	return status, nil
+}
+
+func (s *Status) ToString() (string, error) {
+	raw, err := json.MarshalIndent(s, "", "\t")
+	if err != nil {
+		return "", err
+	}
+	return string(raw), err
 }
