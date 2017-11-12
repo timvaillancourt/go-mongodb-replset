@@ -6,17 +6,22 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+// Replica Set tags: https://docs.mongodb.com/manual/tutorial/configure-replica-set-tag-sets/#add-tag-sets-to-a-replica-set
 type ReplsetTags map[string]string
+
+// Write Concrn document: https://docs.mongodb.com/manual/reference/write-concern/
 type WriteConcern struct {
 	WriteConcern interface{} `bson:"w" json:"w"`
 	WriteTimeout int         `bson:"wtimeout" json:"wtimeout"`
 	Journal      bool        `bson:"j,omitempty" json:"j,omitempty"`
 }
 
+// Standard MongoDB response
 type OkResponse struct {
 	Ok int `bson:"ok" json:"ok" json:"ok"`
 }
 
+// Settings document from 'replSetGetConfig': https://docs.mongodb.com/manual/reference/command/replSetGetConfig/#dbcmd.replSetGetConfig
 type Settings struct {
 	ChainingAllowed         bool                    `bson:"chainingAllowed,omitempty" json:"chainingAllowed,omitempty"`
 	HeartbeatIntervalMillis int64                   `bson:"heartbeatIntervalMillis,omitempty" json:"heartbeatIntervalMillis,omitempty"`
@@ -28,6 +33,7 @@ type Settings struct {
 	ReplicaSetId            bson.ObjectId           `bson:"replicaSetId,omitempty" json:"replicaSetId,omitempty"`
 }
 
+// Config document from 'replSetGetConfig': https://docs.mongodb.com/manual/reference/command/replSetGetConfig/#dbcmd.replSetGetConfig
 type Config struct {
 	Name                               string    `bson:"_id" json:"_id"`
 	Version                            int       `bson:"version" json:"version"`
@@ -38,6 +44,7 @@ type Config struct {
 	WriteConcernMajorityJournalDefault bool      `bson:"writeConcernMajorityJournalDefault,omitempty" json:"writeConcernMajorityJournalDefault,omitempty"`
 }
 
+// Response document from 'replSetGetConfig': https://docs.mongodb.com/manual/reference/command/replSetGetConfig/#dbcmd.replSetGetConfig
 type ReplSetGetConfig struct {
 	Config *Config `bson:"config" json:"config"`
 	Errmsg string  `bson:"errmsg,omitempty" json:"errmsg,omitempty"`
@@ -58,9 +65,14 @@ func (c *Config) IncrVersion() {
 	c.Version = c.Version + 1
 }
 
-// Print the Config as a pretty-printed JSON string.
+// Return the Config as a pretty-printed JSON bytes.
+func (c *Config) ToJSON() ([]byte, error) {
+	return json.MarshalIndent(c, "", "\t")
+}
+
+// Return the Config as a pretty-printed JSON string.
 func (c *Config) ToString() string {
-	raw, err := json.MarshalIndent(c, "", "\t")
+	raw, err := c.ToJSON()
 	if err != nil {
 		return ""
 	}

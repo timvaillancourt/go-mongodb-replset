@@ -1,5 +1,6 @@
 package config
 
+// Member document from 'replSetGetConfig': https://docs.mongodb.com/manual/reference/command/replSetGetConfig/#dbcmd.replSetGetConfig
 type Member struct {
 	Id           int          `bson:"_id" json:"_id"`
 	Host         string       `bson:"host" json:"host"`
