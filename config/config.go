@@ -2,15 +2,8 @@ package config
 
 import (
 	"encoding/json"
-	"errors"
 
 	"gopkg.in/mgo.v2/bson"
-)
-
-var (
-	ErrNoReplsetId        = errors.New("replset config has no _id field!")
-	ErrNoReplsetMembers   = errors.New("replset config has no members!")
-	NoReplsetConfigString = "no replset config has been received"
 )
 
 type ReplsetTags map[string]string
@@ -51,6 +44,7 @@ type ReplSetGetConfig struct {
 	Ok     int     `bson:"ok" json:"ok" json:"ok"`
 }
 
+// Create a new *Config struct. Takes in string of the MongoDB Replica Set name.
 func NewConfig(rsName string) *Config {
 	return &Config{
 		Name:    rsName,
@@ -59,10 +53,12 @@ func NewConfig(rsName string) *Config {
 	}
 }
 
+// Increment the 'Version' field of Config.
 func (c *Config) IncrVersion() {
 	c.Version = c.Version + 1
 }
 
+// Print the Config as a pretty-printed JSON string.
 func (c *Config) ToString() string {
 	raw, err := json.MarshalIndent(c, "", "\t")
 	if err != nil {

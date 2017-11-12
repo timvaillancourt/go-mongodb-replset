@@ -8,6 +8,12 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+var (
+	ErrNoReplsetId        = errors.New("replset config has no _id field!")
+	ErrNoReplsetMembers   = errors.New("replset config has no members!")
+	ErrZeroReplsetVersion = errors.New("replset config has a version field that is not greater than zero!")
+)
+
 type ConfigManager struct {
 	sync.Mutex
 	session   *mgo.Session
@@ -15,6 +21,7 @@ type ConfigManager struct {
 	initiated bool
 }
 
+// Create a new *ConfigManager struct. Takes in a *mgo.Session and returns a *ConfigManager struct.
 func New(session *mgo.Session) *ConfigManager {
 	return &ConfigManager{
 		session:   session,
@@ -22,6 +29,7 @@ func New(session *mgo.Session) *ConfigManager {
 	}
 }
 
+// Get the current config. Returns a *Config struct.
 func (c *ConfigManager) Get() *Config {
 	c.Lock()
 	defer c.Unlock()
@@ -29,11 +37,12 @@ func (c *ConfigManager) Get() *Config {
 	return c.config
 }
 
-func (c *ConfigManager) Set(name string) {
+// Set the current config. Takes in a *Config struct.
+func (c *ConfigManager) Set(config *Config) {
 	c.Lock()
 	defer c.Unlock()
 
-	c.config.GetMember(name)
+	c.config = config
 }
 
 // Perform GetMember on a Config struct with locking
@@ -68,6 +77,8 @@ func (c *ConfigManager) IncrVersion() {
 	c.config.IncrVersion()
 }
 
+// Load the current Config from the MongoDB session, overwriting the current Config if it exists.
+// Uses the 'replSetGetConfig' server command. Returns an error or nil.
 func (c *ConfigManager) Load() error {
 	c.Lock()
 	defer c.Unlock()
@@ -86,6 +97,7 @@ func (c *ConfigManager) Load() error {
 	return nil
 }
 
+// Check if the MongoDB Replica Set is initiated. Returns a boolean.
 func (c *ConfigManager) IsInitiated() bool {
 	if c.initiated {
 		return true
@@ -97,6 +109,7 @@ func (c *ConfigManager) IsInitiated() bool {
 	return true
 }
 
+// Initiate the MongoDB Replica Set using the current Config, via the 'replSetInitiate' server command. Returns an error or nil.
 func (c *ConfigManager) Initiate() error {
 	if c.initiated {
 		return nil
@@ -116,6 +129,7 @@ func (c *ConfigManager) Initiate() error {
 	return nil
 }
 
+// Validate the MongoDB Replica Set Config. Returns an error or nil.
 func (c *ConfigManager) Validate() error {
 	if c.config.Name == "" {
 		return ErrNoReplsetId
@@ -123,9 +137,13 @@ func (c *ConfigManager) Validate() error {
 	if len(c.config.Members) == 0 {
 		return ErrNoReplsetMembers
 	}
+	if c.config.Version == 0 {
+		return ErrZeroReplsetVersion
+	}
 	return nil
 }
 
+// Save the current MongoDB Replica Set Config to the server via 'replSetReconfig' server command. Returns an error or nil.
 func (c *ConfigManager) Save() error {
 	err := c.Validate()
 	if err != nil {
@@ -134,8 +152,6 @@ func (c *ConfigManager) Save() error {
 	if c.IsInitiated() {
 		resp := &OkResponse{}
 		err = c.session.Run(bson.D{{"replSetReconfig", c.Get()}}, resp)
-	} else {
-		err = c.Initiate()
 	}
 	if err != nil {
 		return err
