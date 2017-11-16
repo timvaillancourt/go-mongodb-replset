@@ -39,9 +39,11 @@ func (c *Config) AddMember(member *Member) {
 	if c.HasMember(member.Host) {
 		return
 	}
-	memberMaxId := c.getMemberMaxId()
-	if member.Id <= memberMaxId {
-		member.Id = memberMaxId + 1
+	if len(c.Members) > 0 {
+		memberMaxId := c.getMemberMaxId()
+		if member.Id <= memberMaxId {
+			member.Id = memberMaxId + 1
+		}
 	}
 	c.Members = append(c.Members, member)
 }

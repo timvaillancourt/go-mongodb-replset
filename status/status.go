@@ -44,8 +44,12 @@ func New(session *mgo.Session) (*Status, error) {
 	return status, nil
 }
 
+func (s *Status) ToJSON() ([]byte, error) {
+	return json.MarshalIndent(s, "", "\t")
+}
+
 func (s *Status) ToString() string {
-	raw, err := json.MarshalIndent(s, "", "\t")
+	raw, err := s.ToJSON()
 	if err != nil {
 		return ""
 	}
