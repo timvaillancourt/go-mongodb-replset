@@ -14,9 +14,9 @@ type Member struct {
 }
 
 // Create a new *Member struct. Takes in a string of the hostname of the new Member.
-func (c *Config) NewMember(host string) *Member {
+func NewMember(host string) *Member {
 	return &Member{
-		Id:           c.getMemberMaxId() + 1,
+		Id:           0,
 		Host:         host,
 		BuildIndexes: true,
 		Priority:     1,
