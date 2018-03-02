@@ -52,7 +52,7 @@ func (c *Config) AddMember(member *Member) {
 func (c *Config) RemoveMember(removeMember *Member) {
 	for i, member := range c.Members {
 		if member.Host == removeMember.Host {
-			c.Members = append(c.Members[:i], c.Members[i+1])
+			c.Members = append(c.Members[:i], c.Members[i+1:]...)
 			return
 		}
 	}
