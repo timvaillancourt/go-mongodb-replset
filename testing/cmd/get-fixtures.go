@@ -3,13 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+
+	"github.com/timvaillancourt/go-mongodb-replset/testing"
 )
 
 var (
@@ -56,13 +57,8 @@ func main() {
 			panic(err)
 		}
 
-		bsonData, err := bson.Marshal(data)
-		if err != nil {
-			panic(err)
-		}
-
 		fileName := versionDir + "/" + command + ".bson"
-		err = ioutil.WriteFile(fileName, bsonData, 0640)
+		err = testing.WriteFixture(fileName, data.Data)
 		if err != nil {
 			panic(err)
 		}
