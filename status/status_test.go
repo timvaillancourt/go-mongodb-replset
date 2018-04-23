@@ -3,7 +3,7 @@ package status
 import (
 	"testing"
 
-	"github.com/timvaillancourt/go-mongodb-replset/fixtures"
+	fixtures "github.com/timvaillancourt/go-mongodb-fixtures"
 )
 
 func getStatusFixture(t *testing.T, version string) *Status {
@@ -13,6 +13,16 @@ func getStatusFixture(t *testing.T, version string) *Status {
 		t.Errorf("Error loading fixture for %s: %s", version, err)
 	}
 	return s
+}
+
+func TestGetMembers(t *testing.T) {
+	for _, version := range fixtures.FixtureVersions() {
+		s := getStatusFixture(t, version)
+		t.Logf("Testing status.Members for %s", version)
+		if len(s.Members) < 1 {
+			t.Errorf("Error for %s: status.Members must return 1 or more members!", version)
+		}
+	}
 }
 
 func TestGetSelf(t *testing.T) {
@@ -39,8 +49,12 @@ func TestPrimary(t *testing.T) {
 	for _, version := range fixtures.FixtureVersions() {
 		s := getStatusFixture(t, version)
 		t.Logf("Testing status.Primary() for %s", version)
-		if s.Primary() == nil {
+		primary := s.Primary()
+		if primary == nil {
 			t.Errorf("Error for %s: status.Primary() returned nil!", version)
+		}
+		if primary.State != MemberStatePrimary {
+			t.Errorf("Error for %s: status.Primary() did not return a Primary!", version)
 		}
 	}
 }
