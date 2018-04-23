@@ -13,7 +13,7 @@ func getStatusFixture(version string) (*Status, error) {
 }
 
 func TestGetSelf(t *testing.T) {
-	for _, fixtureVersion := range test.Versions() {
+	for _, fixtureVersion := range test.FixtureVersions() {
 		fixture, err := getStatusFixture(fixtureVersion)
 		if err != nil {
 			t.Errorf("Error loading fixture for %s: %s", fixtureVersion, err)

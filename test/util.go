@@ -31,7 +31,7 @@ func WriteFixture(version, command string, data []byte) error {
 	return ioutil.WriteFile(filePath, data, 0640)
 }
 
-func Versions() []string {
+func FixtureVersions() []string {
 	var versions []string
 	subdirs, err := ioutil.ReadDir(fixturesDir)
 	if err != nil {

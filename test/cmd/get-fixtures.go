@@ -4,15 +4,14 @@ import (
 	"flag"
 	"strings"
 
-	"github.com/timvaillancourt/go-mongodb-replset/fixtures"
+	"github.com/timvaillancourt/go-mongodb-replset/test"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
 var (
-	mongodbUri  = flag.String("uri", "mongodb://localhost:27017", "mongodb server uri")
-	baseDirName = flag.String("outDir", "./fixtures", "output directory for bson fixtures")
-	commands    = []string{
+	mongodbUri = flag.String("uri", "mongodb://localhost:27017", "mongodb server uri")
+	commands   = []string{
 		"replSetGetConfig",
 		"replSetGetStatus",
 	}
@@ -23,8 +22,11 @@ func serverVersion(session *mgo.Session) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	version := strings.SplitN(buildInfo.Version, "-", 2)
-	return version[0], nil
+	if strings.Contains(buildInfo.Version, "-") {
+		version := strings.SplitN(buildInfo.Version, "-", 2)
+		return version[0], nil
+	}
+	return buildInfo.Version, nil
 }
 
 func main() {
@@ -47,7 +49,7 @@ func main() {
 			panic(err)
 		}
 
-		err = fixtures.WriteFixture(version, command, data.Data)
+		err = test.WriteFixture(version, command, data.Data)
 		if err != nil {
 			panic(err)
 		}
