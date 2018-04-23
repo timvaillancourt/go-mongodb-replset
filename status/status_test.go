@@ -6,20 +6,23 @@ import (
 	"github.com/timvaillancourt/go-mongodb-replset/test"
 )
 
+const fixturesDir = "../test/fixtures"
+
 func getStatusFixture(version string) (*Status, error) {
 	s := &Status{}
-	err := test.LoadFixture(version, statusCommand, s)
+	err := test.LoadFixture(fixturesDir, version, statusCommand, s)
 	return s, err
 }
 
 func TestGetSelf(t *testing.T) {
-	for _, fixtureVersion := range test.FixtureVersions() {
-		fixture, err := getStatusFixture(fixtureVersion)
+	for _, version := range test.FixtureVersions(fixturesDir) {
+		s, err := getStatusFixture(version)
+		t.Logf("Testing .GetSelf() for %s", version)
 		if err != nil {
-			t.Errorf("Error loading fixture for %s: %s", fixtureVersion, err)
+			t.Errorf("Error loading fixture for %s: %s", version, err)
 		}
-		if fixture.GetSelf() == nil {
-			t.Errorf("Error for %s: .GetSelf() returned nil!")
+		if s.GetSelf() == nil {
+			t.Errorf("Error for %s: .GetSelf() returned nil!", version)
 		}
 	}
 }
