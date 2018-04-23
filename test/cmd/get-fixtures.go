@@ -2,15 +2,11 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 
+	"github.com/timvaillancourt/go-mongodb-replset/fixtures"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-
-	"github.com/timvaillancourt/go-mongodb-replset/testing"
 )
 
 var (
@@ -44,12 +40,6 @@ func main() {
 		panic(err)
 	}
 
-	versionDir := filepath.Join(*baseDirName, version)
-	err = os.Mkdir(versionDir, 0755)
-	if err != nil {
-		panic(err)
-	}
-
 	for _, command := range commands {
 		var data bson.Raw
 		err = session.DB("admin").Run(bson.D{{command, "1"}}, &data)
@@ -57,12 +47,9 @@ func main() {
 			panic(err)
 		}
 
-		fileName := versionDir + "/" + command + ".bson"
-		err = testing.WriteFixture(fileName, data.Data)
+		err = fixtures.WriteFixture(version, command, data.Data)
 		if err != nil {
 			panic(err)
 		}
-
-		fmt.Printf("Wrote: %s\n", fileName)
 	}
 }

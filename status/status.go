@@ -9,6 +9,10 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+const (
+	statusCommand = "replSetGetStatus"
+)
+
 type Optime struct {
 	Timestamp bson.MongoTimestamp `bson:"ts" json:"ts"`
 	Term      int64               `bson:"t" json:"t"`
@@ -34,7 +38,7 @@ type Status struct {
 
 func New(session *mgo.Session) (*Status, error) {
 	status := &Status{}
-	err := session.DB("admin").Run(bson.D{{"replSetGetStatus", 1}}, status)
+	err := session.DB("admin").Run(bson.D{{statusCommand, 1}}, status)
 	if err != nil {
 		return nil, err
 	}
