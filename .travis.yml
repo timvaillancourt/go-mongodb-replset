@@ -5,6 +5,6 @@ go:
   - "1.10.x"
   - master
 script:
-  - go get -u github.com/Masterminds/glide
-  - glide install
+#- go get -u github.com/Masterminds/glide
+#- glide install
   - go test -v ./...
