@@ -105,12 +105,12 @@ func TestJSONOutput(t *testing.T) {
 	}
 	str, err := s.ToJSON()
 	if err != nil {
-		t.Errorf("Error: status.ToJSON() returned error '%s'", err)
+		t.Errorf("Error running status.ToJSON(): %s", err)
 	}
 	if string(str) == "" {
-		t.Error("Error: status.ToJSON() returned empty string")
+		t.Error("status.ToJSON() returned empty string")
 	}
 	if string(str) != output {
-		t.Error("Error: status.ToJSON() output does not match expected output!")
+		t.Error("status.ToJSON() does not match expected output")
 	}
 }
