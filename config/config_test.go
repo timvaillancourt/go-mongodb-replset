@@ -7,8 +7,7 @@ import (
 )
 
 var (
-	configCommand = "replSetGetConfig"
-	testConfig    = &Config{
+	testConfig = &Config{
 		Name:    "test",
 		Version: 1,
 		Members: []*Member{
@@ -33,18 +32,14 @@ var (
 	}
 )
 
-func getConfigFixture(version string) (*Config, error) {
-	s := &Config{}
-	err := mongodb_fixtures.LoadFixture(version, configCommand, s)
-	return s, err
+func getConfigFixture(t *testing.T, version string) *Config {
+	rsgc := &ReplSetGetConfig{}
+	err := mongodb_fixtures.LoadFixture(version, configCommand, rsgc)
+	if err != nil {
+		t.Errorf("Error loading fixture for %s: %s\n", version, err)
+	}
+	return rsgc.Config
 }
-
-//func main() {
-//for _, fixtureVersion := range mongodb_fixtures.FixtureVersions() {
-//fixture, err := getStatusFixture(fixtureVersion)
-//if err != nil {
-//	fmt.Printf("Error loading fixture for %s: %s\n", fixtureVersion, err)
-//}
 
 func TestToJSON(t *testing.T) {
 	output := `{
@@ -112,5 +107,41 @@ func TestRemoveMember(t *testing.T) {
 	testConfig.RemoveMember(addMember)
 	if testConfig.HasMember(addMember.Host) {
 		t.Errorf("config.RemoveMember() did not succeed, %s is still in config", addMember.Host)
+	}
+}
+
+func TestFixtures(t *testing.T) {
+	for _, version := range mongodb_fixtures.FixtureVersions() {
+		t.Logf("Testing fixtures for mongodb version %s", version)
+
+		c := getConfigFixture(t, version)
+		if c.Name == "" {
+			t.Error("config.Name cannot be an empty string")
+		}
+		if c.Version < 1 {
+			t.Errorf("config.Version must be 1 or greater, got %d", c.Version)
+		}
+		if len(c.Members) < 1 {
+			t.Errorf("config.Members must be greater than zero, got %d", len(c.Members))
+			continue
+		}
+
+		member := c.GetMemberId(0)
+		if member == nil {
+			t.Errorf("config.GetMemberId(0) for %s returned nil", version)
+		} else if member.Id != 0 {
+			t.Errorf("config.GetMemberId(0) for %s returned a non-zero id", version)
+		}
+
+		getMember := c.GetMember(member.Host)
+		if getMember == nil {
+			t.Errorf("config.GetMember(\"%s\") for %s returned nil", member.Host, version)
+		} else if getMember.Host != member.Host {
+			t.Errorf("config.GetMember(\"%s\") for %s returned incorrect host", member.Host, version)
+		}
+
+		if !c.HasMember(member.Host) {
+			t.Errorf("config.HasMember(\"%s\") for %s returned false", member.Host, version)
+		}
 	}
 }

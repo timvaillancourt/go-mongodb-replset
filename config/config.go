@@ -6,6 +6,8 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
+var configCommand = "replSetGetConfig"
+
 // Replica Set tags: https://docs.mongodb.com/manual/tutorial/configure-replica-set-tag-sets/#add-tag-sets-to-a-replica-set
 type ReplsetTags map[string]string
 

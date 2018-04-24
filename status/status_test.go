@@ -3,59 +3,63 @@ package status
 import (
 	"testing"
 
-	fixtures "github.com/timvaillancourt/go-mongodb-fixtures"
+	mongodb_fixtures "github.com/timvaillancourt/go-mongodb-fixtures"
+)
+
+var (
+	testMember = &Member{
+		Id:       0,
+		Name:     "localhost:27017",
+		Health:   MemberHealthUp,
+		State:    MemberStatePrimary,
+		StateStr: "PRIMARY",
+		Optime:   &Optime{},
+		Uptime:   1,
+		Self:     true,
+	}
+	testStatus = &Status{
+		Set:     "test",
+		MyState: MemberStatePrimary,
+		Ok:      1,
+		Members: []*Member{testMember},
+	}
 )
 
 func getStatusFixture(t *testing.T, version string) *Status {
 	s := &Status{}
-	err := fixtures.LoadFixture(version, statusCommand, s)
+	err := mongodb_fixtures.LoadFixture(version, statusCommand, s)
 	if err != nil {
 		t.Errorf("Error loading fixture for %s: %s", version, err)
 	}
 	return s
 }
 
-func TestGetMembers(t *testing.T) {
-	for _, version := range fixtures.FixtureVersions() {
-		s := getStatusFixture(t, version)
-		t.Logf("Testing status.Members for %s", version)
-		if len(s.Members) < 1 {
-			t.Errorf("Error for %s: status.Members must return 1 or more members!", version)
-		}
-	}
-}
-
 func TestGetSelf(t *testing.T) {
-	for _, version := range fixtures.FixtureVersions() {
-		s := getStatusFixture(t, version)
-		t.Logf("Testing status.GetSelf() for %s", version)
-		if s.GetSelf() == nil {
-			t.Errorf("Error for %s: status.GetSelf() returned nil!", version)
-		}
+	if testStatus.GetSelf() == nil {
+		t.Error("status.GetSelf() returned nil")
 	}
 }
 
-func TestGetMemberId0(t *testing.T) {
-	for _, version := range fixtures.FixtureVersions() {
-		s := getStatusFixture(t, version)
-		t.Logf("Testing status.GetMemberId(0) for %s", version)
-		if s.GetMemberId(0) == nil {
-			t.Errorf("Error for %s: status.GetMemberId(0) returned nil!", version)
-		}
+func TestGetMemberId(t *testing.T) {
+	if testStatus.GetMemberId(testMember.Id) == nil {
+		t.Errorf("status.GetMemberId(%d) returned nil", testMember.Id)
+	}
+}
+
+func TestGetMember(t *testing.T) {
+	if testStatus.GetMember(testMember.Name) == nil {
+		t.Errorf("status.GetMember(\"%s\") returned nil", testMember.Name)
 	}
 }
 
 func TestPrimary(t *testing.T) {
-	for _, version := range fixtures.FixtureVersions() {
-		s := getStatusFixture(t, version)
-		t.Logf("Testing status.Primary() for %s", version)
-		primary := s.Primary()
-		if primary == nil {
-			t.Errorf("Error for %s: status.Primary() returned nil!", version)
-		}
-		if primary.State != MemberStatePrimary {
-			t.Errorf("Error for %s: status.Primary() did not return a Primary!", version)
-		}
+	primary := testStatus.Primary()
+	if primary == nil {
+		t.Error("status.Primary() returned nil")
+	} else if primary.State != MemberStatePrimary {
+		t.Error("status.Primary() returned member with non-primary state")
+	} else if primary.Name != testMember.Name || primary.Id != testMember.Id {
+		t.Error("status.Primary() did not return the primary")
 	}
 }
 
@@ -81,29 +85,14 @@ func TestToJSON(t *testing.T) {
 			"electionDate": "0001-01-01T00:00:00Z",
 			"optimeDurableDate": "0001-01-01T00:00:00Z",
 			"lastHeartbeat": "0001-01-01T00:00:00Z",
-			"lastHeartbeatRecv": "0001-01-01T00:00:00Z"
+			"lastHeartbeatRecv": "0001-01-01T00:00:00Z",
+			"self": true
 		}
 	],
 	"ok": 1
 }`
 
-	s := &Status{
-		Set:     "test",
-		MyState: MemberStatePrimary,
-		Ok:      1,
-		Members: []*Member{
-			&Member{
-				Id:       0,
-				Name:     "localhost:27017",
-				Health:   MemberHealthUp,
-				State:    MemberStatePrimary,
-				StateStr: "PRIMARY",
-				Optime:   &Optime{},
-				Uptime:   1,
-			},
-		},
-	}
-	str, err := s.ToJSON()
+	str, err := testStatus.ToJSON()
 	if err != nil {
 		t.Errorf("Error running status.ToJSON(): %s", err)
 	}
@@ -112,5 +101,43 @@ func TestToJSON(t *testing.T) {
 	}
 	if string(str) != output {
 		t.Error("status.ToJSON() does not match expected output")
+	}
+}
+
+func TestFixtures(t *testing.T) {
+	for _, version := range mongodb_fixtures.FixtureVersions() {
+		t.Logf("Testing fixtures for mongodb version %s", version)
+
+		s := getStatusFixture(t, version)
+
+		if len(s.Members) < 1 {
+			t.Errorf("Error for %s: status.Members must return 1 or more members!", version)
+			continue
+		}
+
+		self := s.GetSelf()
+		if self == nil {
+			t.Errorf("Error for %s: status.GetSelf() returned nil!", version)
+			continue
+		}
+
+		if self.Optime == nil {
+			t.Errorf("Error for %s: status.Optime is nil!", version)
+		}
+
+		if s.GetMemberId(self.Id) == nil {
+			t.Errorf("Error for %s: status.GetMemberId(%d) returned nil!", version, self.Id)
+		}
+
+		if s.GetMember(self.Name) == nil {
+			t.Errorf("Error for %s: status.GetMember(\"%s\") returned nil!", version, self.Name)
+		}
+
+		primary := s.Primary()
+		if primary == nil {
+			t.Errorf("Error for %s: status.Primary() returned nil!", version)
+		} else if primary.State != MemberStatePrimary {
+			t.Errorf("Error for %s: status.Primary() did not return a Primary!", version)
+		}
 	}
 }
