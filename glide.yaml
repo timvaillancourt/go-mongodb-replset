@@ -1,0 +1,7 @@
+package: github.com/timvaillancourt/go-mongodb-replset
+import:
+- package: gopkg.in/mgo.v2
+  subpackages:
+  - bson
+testImport:
+- package: github.com/timvaillancourt/go-mongodb-fixtures
