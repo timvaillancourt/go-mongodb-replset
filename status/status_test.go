@@ -59,7 +59,7 @@ func TestPrimary(t *testing.T) {
 	}
 }
 
-func TestJSONOutput(t *testing.T) {
+func TestToJSON(t *testing.T) {
 	var output = `{
 	"set": "test",
 	"date": "0001-01-01T00:00:00Z",

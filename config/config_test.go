@@ -6,7 +6,32 @@ import (
 	mongodb_fixtures "github.com/timvaillancourt/go-mongodb-fixtures"
 )
 
-var configCommand = "replSetGetConfig"
+var (
+	configCommand = "replSetGetConfig"
+	testConfig    = &Config{
+		Name:    "test",
+		Version: 1,
+		Members: []*Member{
+			&Member{
+				Id:           0,
+				Host:         "localhost:27017",
+				BuildIndexes: true,
+				Priority:     1,
+				Tags: &ReplsetTags{
+					"test": "123",
+				},
+				Votes: 1,
+			},
+		},
+	}
+	addMember = &Member{
+		Id:           1,
+		Host:         "localhost:27018",
+		BuildIndexes: true,
+		Priority:     1,
+		Votes:        1,
+	}
+)
 
 func getConfigFixture(version string) (*Config, error) {
 	s := &Config{}
@@ -42,24 +67,7 @@ func TestToJSON(t *testing.T) {
 	]
 }`
 
-	c := &Config{
-		Name:    "test",
-		Version: 1,
-		Members: []*Member{
-			&Member{
-				Id:           0,
-				Host:         "localhost:27017",
-				BuildIndexes: true,
-				Priority:     1,
-				Tags: &ReplsetTags{
-					"test": "123",
-				},
-				Votes: 1,
-			},
-		},
-	}
-
-	str, err := c.ToJSON()
+	str, err := testConfig.ToJSON()
 	if err != nil {
 		t.Errorf("Error running config.ToJSON(): %s", err)
 	}
@@ -68,5 +76,41 @@ func TestToJSON(t *testing.T) {
 	}
 	if string(str) != output {
 		t.Error("config.ToJSON() does not match expected output")
+	}
+}
+
+func TestGetMember(t *testing.T) {
+	member := testConfig.GetMember("localhost:27017")
+	if member.Host != "localhost:27017" {
+		t.Error("config.GetMember() returned wrong 'host'")
+	}
+}
+
+func TestAddMember(t *testing.T) {
+	testConfig.AddMember(addMember)
+	member := testConfig.GetMember(addMember.Host)
+	if member.Host != addMember.Host || member.Id != addMember.Id {
+		t.Error("config.AddMember() failed, .GetMember() after add returns wrong data")
+	}
+}
+
+func TestHasMember(t *testing.T) {
+	if !testConfig.HasMember(addMember.Host) {
+		t.Error("config.HasMember() did not return true")
+	}
+}
+
+func TestIncrVersion(t *testing.T) {
+	version := testConfig.Version
+	testConfig.IncrVersion()
+	if testConfig.Version != (version + 1) {
+		t.Errorf("config.IncrVersion() did not increment the version from %d to %d", version, (version + 1))
+	}
+}
+
+func TestRemoveMember(t *testing.T) {
+	testConfig.RemoveMember(addMember)
+	if testConfig.HasMember(addMember.Host) {
+		t.Errorf("config.RemoveMember() did not succeed, %s is still in config", addMember.Host)
 	}
 }
