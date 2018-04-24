@@ -112,7 +112,7 @@ func TestToJSON(t *testing.T) {
 			"self": true
 		},
 		{
-			"_id": 0,
+			"_id": 1,
 			"name": "localhost:27018",
 			"health": 1,
 			"state": 2,
