@@ -18,7 +18,7 @@ var (
 		Self:     true,
 	}
 	testMemberSecondary = &Member{
-		Id:       0,
+		Id:       1,
 		Name:     "localhost:27018",
 		Health:   MemberHealthUp,
 		State:    MemberStateSecondary,
