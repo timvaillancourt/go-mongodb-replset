@@ -17,11 +17,23 @@ var (
 		Uptime:   1,
 		Self:     true,
 	}
+	testMemberSecondary = &Member{
+		Id:       0,
+		Name:     "localhost:27018",
+		Health:   MemberHealthUp,
+		State:    MemberStateSecondary,
+		StateStr: "SECONDARY",
+		Optime:   &Optime{},
+		Uptime:   1,
+	}
 	testStatus = &Status{
 		Set:     "test",
 		MyState: MemberStatePrimary,
 		Ok:      1,
-		Members: []*Member{testMember},
+		Members: []*Member{
+			testMember,
+			testMemberSecondary,
+		},
 	}
 )
 
@@ -63,8 +75,19 @@ func TestPrimary(t *testing.T) {
 	}
 }
 
+func TestSecondary(t *testing.T) {
+	secondaries := testStatus.Secondaries()
+	if len(secondaries) != 1 {
+		t.Error("status.Secondary() returned zero secondaries")
+	} else if secondaries[0].State != MemberStateSecondary {
+		t.Error("status.Secondary() returned member with non-secondary state")
+	} else if secondaries[0].Name != testMemberSecondary.Name || secondaries[0].Id != testMemberSecondary.Id {
+		t.Error("status.Secondary() did not return a secondary")
+	}
+}
+
 func TestToJSON(t *testing.T) {
-	var output = `{
+	output := `{
 	"set": "test",
 	"date": "0001-01-01T00:00:00Z",
 	"myState": 1,
@@ -87,6 +110,24 @@ func TestToJSON(t *testing.T) {
 			"lastHeartbeat": "0001-01-01T00:00:00Z",
 			"lastHeartbeatRecv": "0001-01-01T00:00:00Z",
 			"self": true
+		},
+		{
+			"_id": 0,
+			"name": "localhost:27018",
+			"health": 1,
+			"state": 2,
+			"stateStr": "SECONDARY",
+			"uptime": 1,
+			"optime": {
+				"ts": 0,
+				"t": 0
+			},
+			"optimeDate": "0001-01-01T00:00:00Z",
+			"configVersion": 0,
+			"electionDate": "0001-01-01T00:00:00Z",
+			"optimeDurableDate": "0001-01-01T00:00:00Z",
+			"lastHeartbeat": "0001-01-01T00:00:00Z",
+			"lastHeartbeatRecv": "0001-01-01T00:00:00Z"
 		}
 	],
 	"ok": 1
