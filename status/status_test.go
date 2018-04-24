@@ -58,3 +58,59 @@ func TestPrimary(t *testing.T) {
 		}
 	}
 }
+
+func TestJSONOutput(t *testing.T) {
+	var output = `{
+	"set": "test",
+	"date": "0001-01-01T00:00:00Z",
+	"myState": 1,
+	"members": [
+		{
+			"_id": 0,
+			"name": "localhost:27017",
+			"health": 1,
+			"state": 1,
+			"stateStr": "PRIMARY",
+			"uptime": 1,
+			"optime": {
+				"ts": 0,
+				"t": 0
+			},
+			"optimeDate": "0001-01-01T00:00:00Z",
+			"configVersion": 0,
+			"electionDate": "0001-01-01T00:00:00Z",
+			"optimeDurableDate": "0001-01-01T00:00:00Z",
+			"lastHeartbeat": "0001-01-01T00:00:00Z",
+			"lastHeartbeatRecv": "0001-01-01T00:00:00Z"
+		}
+	],
+	"ok": 1
+}`
+
+	s := &Status{
+		Set:     "test",
+		MyState: MemberStatePrimary,
+		Ok:      1,
+		Members: []*Member{
+			&Member{
+				Id:       0,
+				Name:     "localhost:27017",
+				Health:   MemberHealthUp,
+				State:    MemberStatePrimary,
+				StateStr: "PRIMARY",
+				Optime:   &Optime{},
+				Uptime:   1,
+			},
+		},
+	}
+	str, err := s.ToJSON()
+	if err != nil {
+		t.Errorf("Error: status.ToJSON() returned error '%s'", err)
+	}
+	if string(str) == "" {
+		t.Error("Error: status.ToJSON() returned empty string")
+	}
+	if string(str) != output {
+		t.Error("Error: status.ToJSON() output does not match expected output!")
+	}
+}
