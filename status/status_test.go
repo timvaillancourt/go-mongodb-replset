@@ -39,7 +39,7 @@ var (
 
 func getStatusFixture(t *testing.T, version string) *Status {
 	s := &Status{}
-	err := mongodb_fixtures.LoadFixture(version, statusCommand, s)
+	err := mongodb_fixtures.Load(version, statusCommand, s)
 	if err != nil {
 		t.Errorf("Error loading fixture for %s: %s", version, err)
 	}
@@ -146,7 +146,7 @@ func TestToJSON(t *testing.T) {
 }
 
 func TestFixtures(t *testing.T) {
-	for _, version := range mongodb_fixtures.FixtureVersions() {
+	for _, version := range mongodb_fixtures.Versions() {
 		t.Logf("Testing fixtures for mongodb version %s", version)
 
 		s := getStatusFixture(t, version)
@@ -162,8 +162,10 @@ func TestFixtures(t *testing.T) {
 			continue
 		}
 
-		if self.Optime == nil {
-			t.Errorf("Error for %s: status.Optime is nil!", version)
+		if mongodb_fixtures.IsVersionMatch(version, ">= 3.2") {
+			if self.Optime == nil {
+				t.Errorf("Error for %s: status.Optime is nil!", version)
+			}
 		}
 
 		if s.GetMemberId(self.Id) == nil {

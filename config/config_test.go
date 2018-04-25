@@ -34,7 +34,7 @@ var (
 
 func getConfigFixture(t *testing.T, version string) *Config {
 	rsgc := &ReplSetGetConfig{}
-	err := mongodb_fixtures.LoadFixture(version, configCommand, rsgc)
+	err := mongodb_fixtures.Load(version, configCommand, rsgc)
 	if err != nil {
 		t.Errorf("Error loading fixture for %s: %s\n", version, err)
 	}
@@ -111,7 +111,7 @@ func TestRemoveMember(t *testing.T) {
 }
 
 func TestFixtures(t *testing.T) {
-	for _, version := range mongodb_fixtures.FixtureVersions() {
+	for _, version := range mongodb_fixtures.Versions() {
 		t.Logf("Testing fixtures for mongodb version %s", version)
 
 		c := getConfigFixture(t, version)
