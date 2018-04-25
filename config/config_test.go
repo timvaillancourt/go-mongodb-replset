@@ -34,7 +34,7 @@ var (
 
 func getConfigFixture(t *testing.T, version string) *Config {
 	rsgc := &ReplSetGetConfig{}
-	err := mongodb_fixtures.Load(version, configCommand, rsgc)
+	err := mongodb_fixtures.Load(version, ConfigCommand, rsgc)
 	if err != nil {
 		t.Errorf("Error loading fixture for %s: %s\n", version, err)
 	}

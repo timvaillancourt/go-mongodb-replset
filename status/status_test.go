@@ -39,7 +39,7 @@ var (
 
 func getStatusFixture(t *testing.T, version string) *Status {
 	s := &Status{}
-	err := mongodb_fixtures.Load(version, statusCommand, s)
+	err := mongodb_fixtures.Load(version, StatusCommand, s)
 	if err != nil {
 		t.Errorf("Error loading fixture for %s: %s", version, err)
 	}

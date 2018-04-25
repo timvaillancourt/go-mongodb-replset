@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	statusCommand = "replSetGetStatus"
+	StatusCommand = "replSetGetStatus"
 )
 
 type Optime struct {
@@ -38,7 +38,7 @@ type Status struct {
 
 func New(session *mgo.Session) (*Status, error) {
 	status := &Status{}
-	err := session.DB("admin").Run(bson.D{{statusCommand, 1}}, status)
+	err := session.DB("admin").Run(bson.D{{StatusCommand, 1}}, status)
 	if err != nil {
 		return nil, err
 	}
