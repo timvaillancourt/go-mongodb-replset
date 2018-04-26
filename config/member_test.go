@@ -36,7 +36,7 @@ func TestGetMemberMaxId(t *testing.T) {
 	member.Id = 99
 	config.AddMember(member)
 	if config.getMemberMaxId() != 99 {
-		t.Errorf("config.getMemberMaxId() did not return 99")
+		t.Errorf("config.getMemberMaxId() returned an value not equal to 99: %v", config.getMemberMaxId())
 	}
 }
 
