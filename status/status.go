@@ -52,7 +52,7 @@ func (s *Status) ToJSON() ([]byte, error) {
 	return json.MarshalIndent(s, "", "\t")
 }
 
-func (s *Status) ToString() string {
+func (s *Status) String() string {
 	raw, err := s.ToJSON()
 	if err != nil {
 		return ""
