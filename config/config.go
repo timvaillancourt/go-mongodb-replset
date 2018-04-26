@@ -73,7 +73,7 @@ func (c *Config) ToJSON() ([]byte, error) {
 }
 
 // Return the Config as a pretty-printed JSON string.
-func (c *Config) ToString() string {
+func (c *Config) String() string {
 	raw, err := c.ToJSON()
 	if err != nil {
 		return ""
