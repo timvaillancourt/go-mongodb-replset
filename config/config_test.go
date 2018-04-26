@@ -7,8 +7,9 @@ import (
 )
 
 var (
-	testConfig = &Config{
-		Name:    "test",
+	testReplsetName = "test"
+	testConfig      = &Config{
+		Name:    testReplsetName,
 		Version: 1,
 		Members: []*Member{
 			&Member{
@@ -23,13 +24,6 @@ var (
 			},
 		},
 	}
-	addMember = &Member{
-		Id:           1,
-		Host:         "localhost:27018",
-		BuildIndexes: true,
-		Priority:     1,
-		Votes:        1,
-	}
 )
 
 func getConfigFixture(t *testing.T, version string) *Config {
@@ -39,6 +33,19 @@ func getConfigFixture(t *testing.T, version string) *Config {
 		t.Errorf("Error loading fixture for %s: %s\n", version, err)
 	}
 	return rsgc.Config
+}
+
+func TestNewConfig(t *testing.T) {
+	config := NewConfig(testReplsetName)
+	if config.Name != testReplsetName {
+		t.Errorf("config.NewConfig(\"%s\") returned a struct with 'Name' equal to %v, not %s", testReplsetName, config.Name, testReplsetName)
+	}
+	if config.Version != 1 {
+		t.Errorf("config.NewConfig(\"%s\") returned a struct with 'Version' not equal to 1: %v", testReplsetName, config.Version)
+	}
+	if len(config.Members) > 0 {
+		t.Errorf("config.NewConfig(\"%s\") returned a struct with a non-empty 'Members': %v", testReplsetName, config.Members)
+	}
 }
 
 func TestToJSON(t *testing.T) {
@@ -74,39 +81,11 @@ func TestToJSON(t *testing.T) {
 	}
 }
 
-func TestGetMember(t *testing.T) {
-	member := testConfig.GetMember("localhost:27017")
-	if member.Host != "localhost:27017" {
-		t.Error("config.GetMember() returned wrong 'host'")
-	}
-}
-
-func TestAddMember(t *testing.T) {
-	testConfig.AddMember(addMember)
-	member := testConfig.GetMember(addMember.Host)
-	if member.Host != addMember.Host || member.Id != addMember.Id {
-		t.Error("config.AddMember() failed, .GetMember() after add returns wrong data")
-	}
-}
-
-func TestHasMember(t *testing.T) {
-	if !testConfig.HasMember(addMember.Host) {
-		t.Error("config.HasMember() did not return true")
-	}
-}
-
 func TestIncrVersion(t *testing.T) {
 	version := testConfig.Version
 	testConfig.IncrVersion()
 	if testConfig.Version != (version + 1) {
 		t.Errorf("config.IncrVersion() did not increment the version from %d to %d", version, (version + 1))
-	}
-}
-
-func TestRemoveMember(t *testing.T) {
-	testConfig.RemoveMember(addMember)
-	if testConfig.HasMember(addMember.Host) {
-		t.Errorf("config.RemoveMember() did not succeed, %s is still in config", addMember.Host)
 	}
 }
 
