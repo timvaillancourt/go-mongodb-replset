@@ -7,25 +7,6 @@ import (
 )
 
 var (
-	testMember = &Member{
-		Id:       0,
-		Name:     "localhost:27017",
-		Health:   MemberHealthUp,
-		State:    MemberStatePrimary,
-		StateStr: "PRIMARY",
-		Optime:   &Optime{},
-		Uptime:   1,
-		Self:     true,
-	}
-	testMemberSecondary = &Member{
-		Id:       1,
-		Name:     "localhost:27018",
-		Health:   MemberHealthUp,
-		State:    MemberStateSecondary,
-		StateStr: "SECONDARY",
-		Optime:   &Optime{},
-		Uptime:   1,
-	}
 	testStatus = &Status{
 		Set:     "test",
 		MyState: MemberStatePrimary,
