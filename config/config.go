@@ -11,6 +11,14 @@ const ConfigCommand = "replSetGetConfig"
 // Replica Set tags: https://docs.mongodb.com/manual/tutorial/configure-replica-set-tag-sets/#add-tag-sets-to-a-replica-set
 type ReplsetTags map[string]string
 
+// HasTag returns a boolean reflecting the existence of a key/value pair in replica set tags
+func (rt ReplsetTags) HasTag(key, val string) bool {
+	if keyVal, ok := rt[key]; ok {
+		return keyVal == val
+	}
+	return false
+}
+
 // Write Concrn document: https://docs.mongodb.com/manual/reference/write-concern/
 type WriteConcern struct {
 	WriteConcern interface{} `bson:"w" json:"w"`
