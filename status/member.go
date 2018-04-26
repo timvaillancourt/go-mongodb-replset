@@ -10,18 +10,18 @@ type MemberHealth int
 type MemberState int
 
 const (
-	MemberHealthDown      MemberHealth = 0
-	MemberHealthUp        MemberHealth = 1
-	MemberStateStartup    MemberState  = 0
-	MemberStatePrimary    MemberState  = 1
-	MemberStateSecondary  MemberState  = 2
-	MemberStateRecovering MemberState  = 4
-	MemberStateStartup2   MemberState  = 5
-	MemberStateUnknown    MemberState  = 6
-	MemberStateArbiter    MemberState  = 7
-	MemberStateDown       MemberState  = 8
-	MemberStateRollback   MemberState  = 9
-	MemberStateRemoved    MemberState  = 10
+	MemberHealthDown MemberHealth = iota
+	MemberHealthUp
+	MemberStateStartup    MemberState = 0
+	MemberStatePrimary    MemberState = 1
+	MemberStateSecondary  MemberState = 2
+	MemberStateRecovering MemberState = 3
+	MemberStateStartup2   MemberState = 5
+	MemberStateUnknown    MemberState = 6
+	MemberStateArbiter    MemberState = 7
+	MemberStateDown       MemberState = 8
+	MemberStateRollback   MemberState = 9
+	MemberStateRemoved    MemberState = 10
 )
 
 type Member struct {
