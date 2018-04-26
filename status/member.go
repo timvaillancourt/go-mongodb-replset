@@ -25,6 +25,7 @@ const (
 )
 
 var MemberStateStrings = map[MemberState]string{
+	MemberStateStartup:    "STARTUP",
 	MemberStatePrimary:    "PRIMARY",
 	MemberStateSecondary:  "SECONDARY",
 	MemberStateRecovering: "RECOVERING",
