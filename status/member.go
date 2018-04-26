@@ -24,6 +24,25 @@ const (
 	MemberStateRemoved    MemberState = 10
 )
 
+var MemberStateStrings = map[MemberState]string{
+	MemberStatePrimary:    "PRIMARY",
+	MemberStateSecondary:  "SECONDARY",
+	MemberStateRecovering: "RECOVERING",
+	MemberStateStartup2:   "STARTUP2",
+	MemberStateUnknown:    "UNKNOWN",
+	MemberStateArbiter:    "ARBITER",
+	MemberStateDown:       "DOWN",
+	MemberStateRollback:   "ROLLBACK",
+	MemberStateRemoved:    "REMOVED",
+}
+
+func (ms MemberState) String() string {
+	if str, ok := MemberStateStrings[ms]; ok {
+		return str
+	}
+	return ""
+}
+
 type Member struct {
 	Id                int                 `bson:"_id" json:"_id"`
 	Name              string              `bson:"name" json:"name"`
