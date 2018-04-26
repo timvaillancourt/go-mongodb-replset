@@ -25,10 +25,10 @@ var (
 )
 
 func TestMemberStateString(t *testing.T) {
-	if testMember.State.String() != "PRIMARY" {
-		t.Errorf("member.State.String() returned %v, not %s", testMember.State.String(), "PRIMARY")
+	if testMember.State.String() != testMember.StateStr {
+		t.Errorf("member.State.String() returned %v, not %s", testMember.State.String(), testMember.StateStr)
 	}
-	if testMemberSecondary.State.String() != "SECONDARY" {
-		t.Errorf("member.State.String() returned %v, not %s", testMember.State.String(), "SECONDARY")
+	if testMemberSecondary.State.String() != testMemberSecondary.StateStr {
+		t.Errorf("member.State.String() returned %v, not %s", testMember.State.String(), testMemberSecondary.StateStr)
 	}
 }
