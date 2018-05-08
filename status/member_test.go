@@ -1,6 +1,10 @@
 package status
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
 
 var (
 	testMember = &Member{
@@ -25,10 +29,41 @@ var (
 )
 
 func TestMemberStateString(t *testing.T) {
-	if testMember.State.String() != testMember.StateStr {
-		t.Errorf("member.State.String() returned %v, not %s", testMember.State.String(), testMember.StateStr)
-	}
-	if testMemberSecondary.State.String() != testMemberSecondary.StateStr {
-		t.Errorf("member.State.String() returned %v, not %s", testMember.State.String(), testMemberSecondary.StateStr)
-	}
+	assert.Equal(t, testMember.StateStr, testMember.State.String(), "member.State.String() has unexpected value")
+	assert.Equal(t, testMemberSecondary.StateStr, testMemberSecondary.State.String(), "member.State.String() has unexpected value")
+}
+
+func TestGetSelf(t *testing.T) {
+	assert.NotNil(t, testStatus.GetSelf(), "status.GetSelf() returned nil")
+}
+
+func TestGetMemberId(t *testing.T) {
+	assert.NotNilf(t, testStatus.GetMemberId(testMember.Id), "status.GetMemberId(%d) returned nil", testMember.Id)
+}
+
+func TestGetMember(t *testing.T) {
+	assert.NotNilf(t, testStatus.GetMember(testMember.Name), "status.GetMember(\"%s\") returned nil", testMember.Name)
+}
+
+func TestPrimary(t *testing.T) {
+	primary := testStatus.Primary()
+	assert.NotNil(t, primary, "status.Primary() returned nil")
+	assert.Equal(t, MemberStatePrimary, primary.State, "status.Primary() returned member with non-primary state")
+	assert.Equal(t, testMember.Name, primary.Name, "status.Primary() did not return the primary")
+	assert.Equal(t, testMember.Id, primary.Id, "status.Primary() did not return the primary")
+}
+
+func TestSecondary(t *testing.T) {
+	secondaries := testStatus.Secondaries()
+	assert.Len(t, secondaries, 1, "status.Secondary() returned zero or more than one secondaries")
+	assert.Equal(t, MemberStateSecondary, secondaries[0].State, "status.Secondary() returned member with non-secondary state")
+	assert.Equal(t, testMemberSecondary.Name, secondaries[0].Name, "status.Secondary() did not return a secondary")
+	assert.Equal(t, testMemberSecondary.Id, secondaries[0].Id, "status.Secondary() did not return a secondary")
+}
+
+func TestGetMembersByState(t *testing.T) {
+	members := testStatus.GetMembersByState(MemberStatePrimary, 0)
+	assert.Lenf(t, members, 1, "status.GetMembersByState(\"%s\", 0) returned %d members, not 1", MemberStatePrimary, len(members))
+	members = testStatus.GetMembersByState(MemberStateUnknown, 0)
+	assert.Lenf(t, members, 0, "status.GetMembersByState(\"%s\", 0) returned %d members, not 0", MemberStateUnknown, len(members))
 }

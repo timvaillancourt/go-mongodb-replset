@@ -3,6 +3,7 @@ package status
 import (
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	mongodb_fixtures "github.com/timvaillancourt/go-mongodb-fixtures"
 )
 
@@ -21,50 +22,8 @@ var (
 func getStatusFixture(t *testing.T, version string) *Status {
 	s := &Status{}
 	err := mongodb_fixtures.Load(version, StatusCommand, s)
-	if err != nil {
-		t.Errorf("Error loading fixture for %s: %s", version, err)
-	}
+	assert.NoErrorf(t, err, "Error loading fixture for %s", version)
 	return s
-}
-
-func TestGetSelf(t *testing.T) {
-	if testStatus.GetSelf() == nil {
-		t.Error("status.GetSelf() returned nil")
-	}
-}
-
-func TestGetMemberId(t *testing.T) {
-	if testStatus.GetMemberId(testMember.Id) == nil {
-		t.Errorf("status.GetMemberId(%d) returned nil", testMember.Id)
-	}
-}
-
-func TestGetMember(t *testing.T) {
-	if testStatus.GetMember(testMember.Name) == nil {
-		t.Errorf("status.GetMember(\"%s\") returned nil", testMember.Name)
-	}
-}
-
-func TestPrimary(t *testing.T) {
-	primary := testStatus.Primary()
-	if primary == nil {
-		t.Error("status.Primary() returned nil")
-	} else if primary.State != MemberStatePrimary {
-		t.Error("status.Primary() returned member with non-primary state")
-	} else if primary.Name != testMember.Name || primary.Id != testMember.Id {
-		t.Error("status.Primary() did not return the primary")
-	}
-}
-
-func TestSecondary(t *testing.T) {
-	secondaries := testStatus.Secondaries()
-	if len(secondaries) != 1 {
-		t.Error("status.Secondary() returned zero secondaries")
-	} else if secondaries[0].State != MemberStateSecondary {
-		t.Error("status.Secondary() returned member with non-secondary state")
-	} else if secondaries[0].Name != testMemberSecondary.Name || secondaries[0].Id != testMemberSecondary.Id {
-		t.Error("status.Secondary() did not return a secondary")
-	}
 }
 
 func TestToJSON(t *testing.T) {
@@ -114,54 +73,31 @@ func TestToJSON(t *testing.T) {
 	"ok": 1
 }`
 
-	str, err := testStatus.ToJSON()
-	if err != nil {
-		t.Errorf("Error running status.ToJSON(): %s", err)
-	}
-	if string(str) == "" {
-		t.Error("status.ToJSON() returned empty string")
-	}
-	if string(str) != output {
-		t.Error("status.ToJSON() does not match expected output")
-	}
+	bytes, err := testStatus.ToJSON()
+	assert.NoError(t, err, "Error running status.ToJSON()")
+	assert.NotEmpty(t, bytes, "status.ToJSON() returned zero bytes of json")
+	assert.Equal(t, output, string(bytes), "status.ToJSON() does not match expected output")
 }
 
 func TestFixtures(t *testing.T) {
 	for _, version := range mongodb_fixtures.Versions() {
-		t.Logf("Testing fixtures for mongodb version %s", version)
+		t.Logf("Testing fixtures for '%s' command on mongodb version %s", StatusCommand, version)
 
 		s := getStatusFixture(t, version)
-
-		if len(s.Members) < 1 {
-			t.Errorf("Error for %s: status.Members must return 1 or more members!", version)
-			continue
-		}
+		assert.NotEmpty(t, s.Members, "status.Members must return 1 or more members")
 
 		self := s.GetSelf()
-		if self == nil {
-			t.Errorf("Error for %s: status.GetSelf() returned nil!", version)
-			continue
-		}
+		assert.NotNil(t, self, "status.GetSelf() returned nil")
 
 		if mongodb_fixtures.IsVersionMatch(version, ">= 3.2") {
-			if self.Optime == nil {
-				t.Errorf("Error for %s: status.Optime is nil!", version)
-			}
+			assert.NotNil(t, self.Optime, "status.Optime is nil")
 		}
 
-		if s.GetMemberId(self.Id) == nil {
-			t.Errorf("Error for %s: status.GetMemberId(%d) returned nil!", version, self.Id)
-		}
-
-		if s.GetMember(self.Name) == nil {
-			t.Errorf("Error for %s: status.GetMember(\"%s\") returned nil!", version, self.Name)
-		}
+		assert.NotNilf(t, s.GetMemberId(self.Id), "status.GetMemberId(%d) returned nil", self.Id)
+		assert.NotNilf(t, s.GetMember(self.Name), "status.GetMember(\"%s\") returned nil", self.Name)
 
 		primary := s.Primary()
-		if primary == nil {
-			t.Errorf("Error for %s: status.Primary() returned nil!", version)
-		} else if primary.State != MemberStatePrimary {
-			t.Errorf("Error for %s: status.Primary() did not return a Primary!", version)
-		}
+		assert.NotNil(t, primary, "status.Primary() returned nil")
+		assert.Equal(t, MemberStatePrimary, primary.State, "status.Primary() did not return a Primary!")
 	}
 }
