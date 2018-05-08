@@ -2,10 +2,14 @@ package config
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 var (
-	testMember = &Member{
+	testMemberName = "test:123456"
+	testMember     = &Member{}
+	testMemberAdd  = &Member{
 		Id:           1,
 		Host:         "localhost:27018",
 		BuildIndexes: true,
@@ -18,55 +22,41 @@ var (
 )
 
 func TestNewMember(t *testing.T) {
-	member := NewMember("test:123456")
-	if member.Host != "test:123456" {
-		t.Errorf("config.NewMember(\"test:123456\") returned a struct with 'Host' not equal to test:123456: %v", member.Host)
-	}
-	if member.BuildIndexes != true {
-		t.Error("config.NewMember(\"test:123456\") returned a struct with 'BuildIndexes' set to false")
-	}
-	if member.Priority != 1 {
-		t.Errorf("config.NewMember(\"test:123456\") returned a struct with 'Priority' not equal to 1: %v", member.Priority)
-	}
-	if member.Votes != 1 {
-		t.Errorf("config.NewMember(\"test:123456\") returned a struct with 'Votes' not equal to 1: %v", member.Votes)
-	}
+	testMember = NewMember(testMemberName)
+	assert.NotNil(t, testMember, "config.NewMember() returned nil")
+	assert.Equal(t, testMemberName, testMember.Host, "config.NewMember(\"test:123456\") returned incorrect struct")
+	assert.True(t, testMember.BuildIndexes, "config.NewMember(\"test:123456\") returned a struct with 'BuildIndexes' set to false")
+	assert.Equal(t, 1, testMember.Priority, "config.NewMember(\"test:123456\") returned a struct with 'Priority' not equal to 1")
+	assert.Equal(t, 1, testMember.Votes, "config.NewMember(\"test:123456\") returned a struct with 'Votes' not equal to 1")
 }
 
-func TestGetMemberMaxId(t *testing.T) {
-	config := testConfig
-	member := NewMember("test:123456")
-	member.Id = 99
-	config.AddMember(member)
-	if config.getMemberMaxId() != 99 {
-		t.Errorf("config.getMemberMaxId() returned an value not equal to 99: %v", config.getMemberMaxId())
-	}
+func TestGetMemberMaxIdBeforeAdd(t *testing.T) {
+	assert.Equal(t, 0, testConfig.getMemberMaxId(), "config.getMemberMaxId() returned an incorrect value")
 }
 
 func TestGetMember(t *testing.T) {
 	member := testConfig.GetMember("localhost:27017")
-	if member.Host != "localhost:27017" {
-		t.Error("config.GetMember() returned wrong 'host'")
-	}
+	assert.NotNil(t, member, "config.GetMember() returned nil")
+	assert.Equal(t, "localhost:27017", member.Host, "config.GetMember() returned wrong 'host'")
 }
 
 func TestAddMember(t *testing.T) {
-	testConfig.AddMember(testMember)
-	member := testConfig.GetMember(testMember.Host)
-	if member.Host != testMember.Host || member.Id != testMember.Id {
-		t.Error("config.AddMember() failed, .GetMember() after add returns wrong data")
-	}
+	testConfig.AddMember(testMemberAdd)
+	member := testConfig.GetMember(testMemberAdd.Host)
+	assert.NotNil(t, member, "config.GetMember() after config.AddMember() failed")
+	assert.Equal(t, testMemberAdd.Host, member.Host, "config.AddMember() failed, .GetMember() after add returns wrong data")
+	assert.Equal(t, testMemberAdd.Id, member.Id, "config.AddMember() failed, .GetMember() after add returns wrong data")
+}
+
+func TestGetMemberMaxIdAfterAdd(t *testing.T) {
+	assert.Equal(t, 1, testConfig.getMemberMaxId(), "config.getMemberMaxId() returned an incorrect value")
 }
 
 func TestHasMember(t *testing.T) {
-	if !testConfig.HasMember(testMember.Host) {
-		t.Error("config.HasMember() did not return true")
-	}
+	assert.True(t, testConfig.HasMember(testMemberAdd.Host), "config.HasMember() did not return true")
 }
 
 func TestRemoveMember(t *testing.T) {
-	testConfig.RemoveMember(testMember)
-	if testConfig.HasMember(testMember.Host) {
-		t.Errorf("config.RemoveMember() did not succeed, %s is still in config", testMember.Host)
-	}
+	testConfig.RemoveMember(testMemberAdd)
+	assert.Falsef(t, testConfig.HasMember(testMemberAdd.Host), "config.RemoveMember() did not succeed, %s is still in config", testMemberAdd.Host)
 }
