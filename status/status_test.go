@@ -27,46 +27,6 @@ func getStatusFixture(t *testing.T, version string) *Status {
 	return s
 }
 
-func TestGetSelf(t *testing.T) {
-	if testStatus.GetSelf() == nil {
-		t.Error("status.GetSelf() returned nil")
-	}
-}
-
-func TestGetMemberId(t *testing.T) {
-	if testStatus.GetMemberId(testMember.Id) == nil {
-		t.Errorf("status.GetMemberId(%d) returned nil", testMember.Id)
-	}
-}
-
-func TestGetMember(t *testing.T) {
-	if testStatus.GetMember(testMember.Name) == nil {
-		t.Errorf("status.GetMember(\"%s\") returned nil", testMember.Name)
-	}
-}
-
-func TestPrimary(t *testing.T) {
-	primary := testStatus.Primary()
-	if primary == nil {
-		t.Error("status.Primary() returned nil")
-	} else if primary.State != MemberStatePrimary {
-		t.Error("status.Primary() returned member with non-primary state")
-	} else if primary.Name != testMember.Name || primary.Id != testMember.Id {
-		t.Error("status.Primary() did not return the primary")
-	}
-}
-
-func TestSecondary(t *testing.T) {
-	secondaries := testStatus.Secondaries()
-	if len(secondaries) != 1 {
-		t.Error("status.Secondary() returned zero secondaries")
-	} else if secondaries[0].State != MemberStateSecondary {
-		t.Error("status.Secondary() returned member with non-secondary state")
-	} else if secondaries[0].Name != testMemberSecondary.Name || secondaries[0].Id != testMemberSecondary.Id {
-		t.Error("status.Secondary() did not return a secondary")
-	}
-}
-
 func TestToJSON(t *testing.T) {
 	output := `{
 	"set": "test",
@@ -128,7 +88,7 @@ func TestToJSON(t *testing.T) {
 
 func TestFixtures(t *testing.T) {
 	for _, version := range mongodb_fixtures.Versions() {
-		t.Logf("Testing fixtures for mongodb version %s", version)
+		t.Logf("Testing fixtures for '%s' command on mongodb version %s", StatusCommand, version)
 
 		s := getStatusFixture(t, version)
 

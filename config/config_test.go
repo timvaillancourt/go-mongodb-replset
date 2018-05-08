@@ -91,7 +91,7 @@ func TestIncrVersion(t *testing.T) {
 
 func TestFixtures(t *testing.T) {
 	for _, version := range mongodb_fixtures.Versions() {
-		t.Logf("Testing fixtures for mongodb version %s", version)
+		t.Logf("Testing fixtures for '%s' command on mongodb version %s", ConfigCommand, version)
 
 		c := getConfigFixture(t, version)
 		if c.Name == "" {
