@@ -1,3 +1,5 @@
+dist: trusty
+sudo: required
 language: go
 go:
   - "1.x"
@@ -7,9 +9,19 @@ go:
 matrix:
   allow_failures:
     - go: master
+env:
+  - PSMDB_VERSION=3.2
+  - PSMDB_VERSION=3.4
+  - PSMDB_VERSION=3.6
+services:
+  - docker
 before_script:
-  - go get -u github.com/AlekSi/gocoverutil
+  - docker --version
+  - docker-compose --version
+  - sudo make TEST_PSMDB_VERSION=$PSMDB_VERSION test-full-prepare
 script:
-  - gocoverutil test -v ./...
+  - make test-full
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+after_script:
+  - sudo make test-full-clean
