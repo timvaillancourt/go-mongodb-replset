@@ -13,6 +13,12 @@ TEST_SECONDARY2_PORT?=65219
 $(GOPATH)/bin/gocoverutil:
 	go get -u github.com/AlekSi/gocoverutil 
 
+$(GOPATH)/bin/glide:
+	go get -u github.com/Masterminds/glide
+
+vendor: $(GOPATH)/bin/glide glide.lock
+	glide install
+
 test:
 	GOCACHE=$(GOCACHE) ENABLE_MONGODB_TESTS=$(ENABLE_MONGODB_TESTS) go test -v ./...
 
@@ -25,7 +31,7 @@ test-full-prepare:
 	docker-compose up -d
 	test/init-test-replset-wait.sh
 
-test-full: $(GOPATH)/bin/gocoverutil
+test-full: vendor $(GOPATH)/bin/gocoverutil
 	ENABLE_MONGODB_TESTS=true \
 	TEST_RS_NAME=$(TEST_RS_NAME) \
 	TEST_PRIMARY_PORT=$(TEST_PRIMARY_PORT) \
@@ -33,6 +39,7 @@ test-full: $(GOPATH)/bin/gocoverutil
 
 test-full-clean:
 	docker-compose down
+	rm -rf vendor 2>/dev/null || true
 
 clean:
 	rm -f coverage.txt 2>/dev/null || true
