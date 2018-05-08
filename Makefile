@@ -1,4 +1,5 @@
 GOCACHE?=
+PACKAGES=$(shell go list ./... | grep -v vendor)
 
 ENABLE_MONGODB_TESTS?=false
 TEST_PSMDB_VERSION?=latest
@@ -33,7 +34,7 @@ test-full: vendor $(GOPATH)/bin/gocoverutil
 	ENABLE_MONGODB_TESTS=true \
 	TEST_RS_NAME=$(TEST_RS_NAME) \
 	TEST_PRIMARY_PORT=$(TEST_PRIMARY_PORT) \
-	GOCACHE=$(GOCACHE) $(GOPATH)/bin/gocoverutil test -v ./...
+	GOCACHE=$(GOCACHE) $(GOPATH)/bin/gocoverutil test -v $(PACKAGES)
 
 test-full-clean:
 	docker-compose down
