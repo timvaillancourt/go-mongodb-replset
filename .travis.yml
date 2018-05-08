@@ -7,7 +7,9 @@ go:
 matrix:
   allow_failures:
     - go: master
+before_script:
+  - go get -u github.com/AlekSi/gocoverutil
 script:
-  - go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+  - gocoverutil test -v ./...
 after_success:
   - bash <(curl -s https://codecov.io/bash)
