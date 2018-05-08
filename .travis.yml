@@ -1,5 +1,4 @@
 dist: trusty
-sudo: required
 language: go
 go:
   - "1.x"
@@ -18,10 +17,10 @@ services:
 before_script:
   - docker --version
   - docker-compose --version
-  - sudo make TEST_PSMDB_VERSION=$PSMDB_VERSION test-full-prepare
+  - make TEST_PSMDB_VERSION=$PSMDB_VERSION test-full-prepare
 script:
   - make test-full
 after_success:
   - bash <(curl -s https://codecov.io/bash)
 after_script:
-  - sudo make test-full-clean
+  - make test-full-clean
