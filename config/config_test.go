@@ -64,7 +64,7 @@ func TestToJSON(t *testing.T) {
 
 	bytes, err := testConfig.ToJSON()
 	assert.NoError(t, err, "Error running config.ToJSON()")
-	assert.NotZero(t, bytes, "config.ToJSON() returned zero bytes of json")
+	assert.NotEmpty(t, bytes, "config.ToJSON() returned zero bytes of json")
 	assert.Equal(t, output, string(bytes), "config.ToJSON() does not match expected output")
 }
 
