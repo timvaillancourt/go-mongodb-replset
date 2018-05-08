@@ -18,6 +18,7 @@ before_script:
   - docker --version
   - docker-compose --version
   - make TEST_PSMDB_VERSION=$PSMDB_VERSION test-full-prepare
+  - go get -t -v ./...
 script:
   - make test-full
 after_success:
