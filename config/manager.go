@@ -80,15 +80,14 @@ func (c *ConfigManager) IncrVersion() {
 // Load the current Config from the MongoDB session, overwriting the current Config if it exists.
 // Uses the 'replSetGetConfig' server command. Returns an error or nil.
 func (c *ConfigManager) Load() error {
-	c.Lock()
-	defer c.Unlock()
-
 	resp := &ReplSetGetConfig{}
 	err := c.session.Run(bson.D{{"replSetGetConfig", 1}}, resp)
 	if err != nil {
 		return err
 	}
 	if resp.Ok == 1 && resp.Config != nil {
+		c.Lock()
+		defer c.Unlock()
 		c.config = resp.Config
 		c.initiated = true
 	} else {
@@ -114,6 +113,9 @@ func (c *ConfigManager) Initiate() error {
 	if c.initiated {
 		return nil
 	}
+	c.Lock()
+	defer c.Unlock()
+
 	resp := &OkResponse{}
 	err := c.session.Run(bson.D{{"replSetInitiate", c.config}}, resp)
 	if err != nil {
@@ -145,13 +147,16 @@ func (c *ConfigManager) Validate() error {
 
 // Save the current MongoDB Replica Set Config to the server via 'replSetReconfig' server command. Returns an error or nil.
 func (c *ConfigManager) Save() error {
+	c.Lock()
+	defer c.Unlock()
+
 	err := c.Validate()
 	if err != nil {
 		return err
 	}
 	if c.IsInitiated() {
 		resp := &OkResponse{}
-		err = c.session.Run(bson.D{{"replSetReconfig", c.Get()}}, resp)
+		err = c.session.Run(bson.D{{"replSetReconfig", c.config}}, resp)
 	}
 	if err != nil {
 		return err
