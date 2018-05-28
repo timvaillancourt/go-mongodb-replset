@@ -14,6 +14,21 @@ var (
 	ErrZeroReplsetVersion = errors.New("replset config has a version field that is not greater than zero!")
 )
 
+// Manager is an interface describing a config manager
+type Manager interface {
+	AddMember(member *Member)
+	Get() *Config
+	GetMember(name string) *Member
+	IncrVersion()
+	Initiate() error
+	IsInitiated() bool
+	Load() error
+	RemoveMember(member *Member)
+	Save() error
+	Set(config *Config)
+	Validate() error
+}
+
 type ConfigManager struct {
 	sync.Mutex
 	session   *mgo.Session
