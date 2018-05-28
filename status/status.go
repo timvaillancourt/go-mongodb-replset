@@ -13,6 +13,19 @@ const (
 	StatusCommand = "replSetGetStatus"
 )
 
+// Manager is an interface describing a Status manager
+type Manager interface {
+	GetMember(name string) *Member
+	GetMemberId(id int) *Member
+	GetMembersByState(state MemberState, limit int) []*Member
+	GetSelf() *Member
+	HasMember(name string) bool
+	Primary() *Member
+	Secondaries() []*Member
+	String() string
+	ToJSON() ([]byte, error)
+}
+
 type Optime struct {
 	Timestamp bson.MongoTimestamp `bson:"ts" json:"ts"`
 	Term      int64               `bson:"t" json:"t"`
