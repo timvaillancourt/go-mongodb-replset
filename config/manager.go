@@ -14,7 +14,7 @@ var (
 	ErrZeroReplsetVersion = errors.New("replset config has a version field that is not greater than zero!")
 )
 
-// Manager is an interface describing a config manager
+// Manager is an interface describing a Config manager
 type Manager interface {
 	AddMember(member *Member)
 	Get() *Config

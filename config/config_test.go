@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	mongodb_fixtures "github.com/timvaillancourt/go-mongodb-fixtures"
+	mongodbFixtures "github.com/timvaillancourt/go-mongodb-fixtures"
 )
 
 var (
@@ -29,7 +29,7 @@ var (
 
 func getConfigFixture(t *testing.T, version string) *Config {
 	rsgc := &ReplSetGetConfig{}
-	err := mongodb_fixtures.Load(version, ConfigCommand, rsgc)
+	err := mongodbFixtures.Load(version, ConfigCommand, rsgc)
 	assert.NoErrorf(t, err, "Error loading fixture for %s", version)
 	return rsgc.Config
 }
@@ -75,7 +75,7 @@ func TestIncrVersion(t *testing.T) {
 }
 
 func TestFixtures(t *testing.T) {
-	for _, version := range mongodb_fixtures.Versions() {
+	for _, version := range mongodbFixtures.Versions() {
 		t.Logf("Testing fixtures for '%s' command on mongodb version %s", ConfigCommand, version)
 
 		c := getConfigFixture(t, version)
