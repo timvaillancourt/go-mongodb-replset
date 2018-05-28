@@ -66,7 +66,7 @@ type Member struct {
 	SyncingTo         string              `bson:"syncingTo,omitempty" json:"syncingTo,omitempty"`
 }
 
-func (s *Status) GetSelf() *Member {
+func (s *ServerStatus) GetSelf() *Member {
 	for _, member := range s.Members {
 		if member.Self == true {
 			return member
@@ -75,7 +75,7 @@ func (s *Status) GetSelf() *Member {
 	return nil
 }
 
-func (s *Status) GetMember(name string) *Member {
+func (s *ServerStatus) GetMember(name string) *Member {
 	for _, member := range s.Members {
 		if member.Name == name {
 			return member
@@ -84,11 +84,11 @@ func (s *Status) GetMember(name string) *Member {
 	return nil
 }
 
-func (s *Status) HasMember(name string) bool {
+func (s *ServerStatus) HasMember(name string) bool {
 	return s.GetMember(name) != nil
 }
 
-func (s *Status) GetMemberId(id int) *Member {
+func (s *ServerStatus) GetMemberId(id int) *Member {
 	for _, member := range s.Members {
 		if member.Id == id {
 			return member
@@ -97,7 +97,7 @@ func (s *Status) GetMemberId(id int) *Member {
 	return nil
 }
 
-func (s *Status) GetMembersByState(state MemberState, limit int) []*Member {
+func (s *ServerStatus) GetMembersByState(state MemberState, limit int) []*Member {
 	members := make([]*Member, 0)
 	for _, member := range s.Members {
 		if member.State == state {
@@ -110,7 +110,7 @@ func (s *Status) GetMembersByState(state MemberState, limit int) []*Member {
 	return members
 }
 
-func (s *Status) Primary() *Member {
+func (s *ServerStatus) Primary() *Member {
 	primary := s.GetMembersByState(MemberStatePrimary, 1)
 	if len(primary) == 1 {
 		return primary[0]
@@ -118,6 +118,6 @@ func (s *Status) Primary() *Member {
 	return nil
 }
 
-func (s *Status) Secondaries() []*Member {
+func (s *ServerStatus) Secondaries() []*Member {
 	return s.GetMembersByState(MemberStateSecondary, 0)
 }
