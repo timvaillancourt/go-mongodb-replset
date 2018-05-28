@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	mongodb_fixtures "github.com/timvaillancourt/go-mongodb-fixtures"
+	mongodbFixtures "github.com/timvaillancourt/go-mongodb-fixtures"
 )
 
 var (
@@ -21,7 +21,7 @@ var (
 
 func getStatusFixture(t *testing.T, version string) *Status {
 	s := &Status{}
-	err := mongodb_fixtures.Load(version, StatusCommand, s)
+	err := mongodbFixtures.Load(version, StatusCommand, s)
 	assert.NoErrorf(t, err, "Error loading fixture for %s", version)
 	return s
 }
@@ -80,7 +80,7 @@ func TestToJSON(t *testing.T) {
 }
 
 func TestFixtures(t *testing.T) {
-	for _, version := range mongodb_fixtures.Versions() {
+	for _, version := range mongodbFixtures.Versions() {
 		t.Logf("Testing fixtures for '%s' command on mongodb version %s", StatusCommand, version)
 
 		s := getStatusFixture(t, version)
@@ -89,7 +89,7 @@ func TestFixtures(t *testing.T) {
 		self := s.GetSelf()
 		assert.NotNil(t, self, "status.GetSelf() returned nil")
 
-		if mongodb_fixtures.IsVersionMatch(version, ">= 3.2") {
+		if mongodbFixtures.IsVersionMatch(version, ">= 3.2") {
 			assert.NotNil(t, self.Optime, "status.Optime is nil")
 		}
 
