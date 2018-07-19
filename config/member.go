@@ -34,6 +34,17 @@ func (c *Config) getMemberMaxId() int {
 	return maxId
 }
 
+// VotingMembers returns an int of how many members have zero or more votes
+func (c *Config) VotingMembers() int {
+	var votingMembers int
+	for _, member := range c.Members {
+		if member.Votes > 0 {
+			votingMembers++
+		}
+	}
+	return votingMembers
+}
+
 // Add a *Member struct to the Config, if it does not already exist. Takes in a *Member struct to be added.
 func (c *Config) AddMember(member *Member) {
 	if c.HasMember(member.Host) {
