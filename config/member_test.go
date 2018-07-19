@@ -34,6 +34,17 @@ func TestGetMemberMaxIdBeforeAdd(t *testing.T) {
 	assert.Equal(t, 0, testConfig.getMemberMaxId(), "config.getMemberMaxId() returned an incorrect value")
 }
 
+func TestVotingMembers(t *testing.T) {
+	config := &Config{Members: []*Member{
+		{Votes: 1},
+		{Votes: 2},
+		{Votes: 3},
+	}}
+	assert.Equal(t, 3, config.VotingMembers(), ".VotingMembers() returned incorrect result")
+	config = &Config{Members: []*Member{}}
+	assert.Equal(t, 0, config.VotingMembers(), ".VotingMembers() returned incorrect result")
+}
+
 func TestGetMember(t *testing.T) {
 	member := testConfig.GetMember("localhost:27017")
 	assert.NotNil(t, member, "config.GetMember() returned nil")
